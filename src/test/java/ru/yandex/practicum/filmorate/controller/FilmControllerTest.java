@@ -9,16 +9,16 @@ import ru.yandex.practicum.filmorate.model.Film;
 import static org.junit.jupiter.api.Assertions.*;
 
 class FilmControllerTest {
-    static FilmController filmController;
-    static Film testFilm;
+    private static FilmController filmController;
+    private static Film testFilm;
 
     @BeforeAll
-    static void beforeAll() {
+    public static void beforeAll() {
         filmController = new FilmController();
     }
 
     @BeforeEach
-    void beforeEach() {
+    public void beforeEach() {
         testFilm = new Film();
         testFilm.setId(100);
         testFilm.setName("TestFilm");
@@ -28,13 +28,13 @@ class FilmControllerTest {
     }
 
     @Test
-    void shouldApproveFilmWithCorrectData() throws ValidationException {
+    public void shouldApproveFilmWithCorrectData() throws ValidationException {
         assertTrue(filmController.checkIsFilmDataCorrect(testFilm),
                 "Корректная версия Film не прошла проверку");
     }
 
     @Test
-    void shouldDeclineFilmWithIncorrectName() {
+    public void shouldDeclineFilmWithIncorrectName() {
         testFilm.setName(null);
         assertThrows(ValidationException.class, () -> filmController.checkIsFilmDataCorrect(testFilm));
         testFilm.setName("");
@@ -44,7 +44,7 @@ class FilmControllerTest {
     }
 
     @Test
-    void shouldDeclineFilmWithIncorrectDescription() {
+    public void shouldDeclineFilmWithIncorrectDescription() {
         testFilm.setDescription(null);
         assertThrows(ValidationException.class, () -> filmController.checkIsFilmDataCorrect(testFilm));
         testFilm.setName("111111111111111111111111111111111111111111111111111111111111111111111111111" +
@@ -54,13 +54,13 @@ class FilmControllerTest {
     }
 
     @Test
-    void shouldDeclineFilmWithIncorrectReleaseDate() {
+    public void shouldDeclineFilmWithIncorrectReleaseDate() {
         testFilm.setReleaseDate("1895-12-27");
         assertThrows(ValidationException.class, () -> filmController.checkIsFilmDataCorrect(testFilm));
     }
 
     @Test
-    void shouldDeclineFilmWithIncorrectDuration() {
+    public void shouldDeclineFilmWithIncorrectDuration() {
         testFilm.setDuration(0);
         assertThrows(ValidationException.class, () -> filmController.checkIsFilmDataCorrect(testFilm));
         testFilm.setDuration(-1);

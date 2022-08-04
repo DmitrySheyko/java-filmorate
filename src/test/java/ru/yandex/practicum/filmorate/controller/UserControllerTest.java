@@ -9,16 +9,16 @@ import ru.yandex.practicum.filmorate.model.User;
 import static org.junit.jupiter.api.Assertions.*;
 
 class UserControllerTest {
-    static UserController userController;
-    static User testUser;
+    private static UserController userController;
+    private static User testUser;
 
     @BeforeAll
-    static void beforeAll() {
+    public static void beforeAll() {
         userController = new UserController();
     }
 
     @BeforeEach
-    void beforeEach() {
+    public void beforeEach() {
         testUser = new User();
         testUser.setName("Ivan");
         testUser.setLogin("TestUser");
@@ -27,13 +27,13 @@ class UserControllerTest {
     }
 
     @Test
-    void shouldApproveUserWithCorrectData() throws ValidationException {
+    public void shouldApproveUserWithCorrectData() throws ValidationException {
         assertTrue(userController.checkIsUserDataCorrect(testUser),
                 "Корректная версия User не прошла проверку");
     }
 
     @Test
-    void shouldDeclineUserWithIncorrectEmail() {
+    public void shouldDeclineUserWithIncorrectEmail() {
         testUser.setEmail(null);
         assertThrows(ValidationException.class, () -> userController.checkIsUserDataCorrect(testUser));
         testUser.setEmail("");
@@ -45,7 +45,7 @@ class UserControllerTest {
     }
 
     @Test
-    void shouldDeclineUserWithIncorrectLogin() {
+    public void shouldDeclineUserWithIncorrectLogin() {
         testUser.setLogin(null);
         assertThrows(ValidationException.class, () -> userController.checkIsUserDataCorrect(testUser));
         testUser.setLogin("");
@@ -57,7 +57,7 @@ class UserControllerTest {
     }
 
     @Test
-    void shouldDeclineUserWithIncorrectBirthDay() {
+    public void shouldDeclineUserWithIncorrectBirthDay() {
         testUser.setBirthday(null);
         assertThrows(ValidationException.class, () -> userController.checkIsUserDataCorrect(testUser));
         testUser.setBirthday("2023-10-10");
@@ -65,7 +65,7 @@ class UserControllerTest {
     }
 
     @Test
-    void shouldReplaceEmptyNameByLogin() throws ValidationException {
+    public void shouldReplaceEmptyNameByLogin() throws ValidationException {
         testUser.setLogin("CorrectLogin");
         testUser.setName("");
         userController.checkIsUserDataCorrect(testUser);
