@@ -9,6 +9,8 @@ public interface FilmStorage {
 
     Film addFilm(Film newFilm);
 
+    Film updateFilm(Film updatedFilm);
+
     boolean checkIsFilmInStorage(Film film);
 
     boolean checkIsFilmInStorage(int filmId);

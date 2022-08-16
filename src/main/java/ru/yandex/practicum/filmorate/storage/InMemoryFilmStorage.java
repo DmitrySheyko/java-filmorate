@@ -24,6 +24,12 @@ public class InMemoryFilmStorage implements FilmStorage {
         return newFilm;
     }
 
+    public Film updateFilm(Film updatedFilm){
+        films.put(updatedFilm.getId(), updatedFilm);
+        log.info("Данные о фильме id = {} обновлены", updatedFilm.getId());
+        return updatedFilm;
+    }
+
     public boolean checkIsFilmInStorage(Film film) {
         return films.containsValue(film);
     }

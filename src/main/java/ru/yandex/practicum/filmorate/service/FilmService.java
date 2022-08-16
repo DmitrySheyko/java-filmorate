@@ -37,10 +37,10 @@ public class FilmService {
         }
     }
 
-    public Film updateFilm(Film newFilm) throws ValidationException {
-        if (filmStorage.checkIsFilmInStorage(newFilm)) {
-            if (checkIsFilmDataCorrect(newFilm)) {
-                return filmStorage.addFilm(newFilm);
+    public Film updateFilm(Film updatedFilm) throws ValidationException {
+        if (filmStorage.checkIsFilmInStorage(updatedFilm)) {
+            if (checkIsFilmDataCorrect(updatedFilm)) {
+                return filmStorage.addFilm(updatedFilm);
             } else {
                 return null;
             }
