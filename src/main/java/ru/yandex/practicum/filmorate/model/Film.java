@@ -2,24 +2,47 @@ package ru.yandex.practicum.filmorate.model;
 
 import lombok.Data;
 
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Size;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
 
 @Data
 public class Film {
     private static int identificator = 0;
-    private int id = setId();
-    @NotBlank
+    private int id;
     private String name;
-    @Size(max = 200)
     private String description;
-    @NotBlank
     private String releaseDate;
-    @Min(1)
     private long duration;
+    private int rate;
+    private Set<Integer> setOfLikes;
 
-    public int setId() {
-        return ++identificator;
+    public void generateAndSetId(){
+        setId(++identificator);
+    }
+
+    public void addLike(Integer userId){
+        setOfLikes.add(userId);
+    }
+
+    public void deleteLike (Integer userId){
+        setOfLikes.remove(userId);
+    }
+
+    public void generateSetOfLikes() {
+        this.setOfLikes = new HashSet<>();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Film film = (Film) o;
+        return id == film.id;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }
