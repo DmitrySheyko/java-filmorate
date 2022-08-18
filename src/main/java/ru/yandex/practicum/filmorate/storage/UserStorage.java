@@ -6,7 +6,7 @@ import java.util.List;
 
 public interface UserStorage {
 
-    List<User> getUsers();
+    List<User> getAllUsers();
 
     User getUserById(int userId);
 
@@ -23,4 +23,6 @@ public interface UserStorage {
     void deleteFriend(int userId, int friendId);
 
     List<User> getListOfFriends(int userId);
+
+    boolean checkAreTheseUsersFriends(Integer userId, Integer friendId);
 }

@@ -20,20 +20,16 @@ public class User {
         setId(++identificator);
     }
 
-    public void addFriend(int friendId) {
-        setOfFriends.add(friendId);
-    }
-
-    public void deleteFriend(Integer friend) {
-        setOfFriends.remove(friend);
-    }
-
     public void generateSetOfFriends() {
         this.setOfFriends = new HashSet<>();
     }
 
-    public Set<Integer> getSetOfFriends() {
-        return setOfFriends;
+    public void addFriend(int friendId) {
+        setOfFriends.add(friendId);
+    }
+
+    public void deleteFriend(int friend) {
+        setOfFriends.remove(friend);
     }
 
     @Override

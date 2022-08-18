@@ -6,9 +6,8 @@ import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
 
-import javax.validation.Valid;
+import javax.validation.Valid; //TODO проверить и убрать
 import java.util.List;
-import java.util.Map;
 
 @Slf4j
 @RestController
@@ -21,68 +20,52 @@ public class UserController {
         this.userService = userService;
     }
 
-    @GetMapping
-    public List<User> getUsers() {
-        return userService.getUsers();
-    }
-
-    @GetMapping("{id}")
-    public User getUserById (@PathVariable("id") int userId){
-        return userService.getUserById(userId);
-    }
-
     @PostMapping
     public User addUser(@Valid @RequestBody User newUser) {
+        log.info("Получен запрос на добавление нового пользователя");
         return userService.addUser(newUser);
     }
 
     @PutMapping
-    public User updateUser(@Valid @RequestBody User updatedUser){
+    public User updateUser(@Valid @RequestBody User updatedUser) {
+        log.info("Получен запрос на обновление данных пользователя id={}", updatedUser.getId());
         return userService.updateUser(updatedUser);
     }
 
-    // добавление в друзья  //TODO проверить на добавление уже добавленного друга
+    @GetMapping("{id}")
+    public User getUserById(@PathVariable("id") int userId) {
+        log.info("Получен запрос на получение пользователя id={}", userId);
+        return userService.getUserById(userId);
+    }
+
+    @GetMapping
+    public List<User> getAllUsers() {
+        log.info("Получен запрос на получение списка пользователей");
+        return userService.getAllUsers();
+    }
+
     @PutMapping("{id}/friends/{friendId}")
     public void addFriend(@PathVariable("id") int userId, @PathVariable int friendId) {
+        log.info("Получен запрос на добавление польхователя id={} в друзья пользователю id={}", friendId, userId);
         userService.addFriend(userId, friendId);
     }
 
-    // удаление из друзей
     @DeleteMapping("{id}/friends/{friendId}")
     public void deleteFriend(@PathVariable("id") int userId, @PathVariable("friendId") int friendId) {
+        log.info("Получен запрос на удаление польхователя id={} из друзей пользователя id={}", friendId, userId);
         userService.deleteFriend(userId, friendId);
     }
 
-    // получение списка друзей
     @GetMapping("{id}/friends")
     @ResponseBody
     public List<User> getListOfFriends(@PathVariable("id") int userId) {
+        log.info("Получен запрос на получения списка друзей пользователя id={}", userId);
         return userService.getListOfFriends(userId);
     }
 
-    // получение списка общих друзей
     @GetMapping("{id}/friends/common/{otherId}")
     List<User> getListOfCommonFriends(@PathVariable("id") int userId, @PathVariable("otherId") int friendId) {
+        log.info("Получен запрос на получение общего списка друзей пользователей id={} и id={}", userId, friendId);
         return userService.getListOfCommonFriends(userId, friendId);
     }
-
-//    @ResponseStatus(HttpStatus.NOT_FOUND)
-//    @ExceptionHandler (ObjectNotFoundException.class)
-//    @ResponseBody
-//    public Map<String, String> handlerOfObjectNotFoundException(final ObjectNotFoundException e) {
-//        return Map.of("Error", e.getMessage());
-//    }
-
-//    @ResponseStatus(HttpStatus.BAD_REQUEST)
-//    @ExceptionHandler (ValidationException.class)
-//    public ErrorResponse handlerOfValidationException(final ValidationException e) {
-//        return new ErrorResponse(e.getMessage());
-//    }
-//
-//    @ResponseStatus(HttpStatus.NOT_FOUND)
-//    @ExceptionHandler (ObjectNotFoundException.class)
-//    @ResponseBody
-//    public Map<String, String> handlerOfObjectNotFoundException(final ObjectNotFoundException e) {
-//        return Map.of("Error", e.getMessage());
-//    }
 }

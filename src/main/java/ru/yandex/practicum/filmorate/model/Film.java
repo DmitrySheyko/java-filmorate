@@ -21,16 +21,16 @@ public class Film {
         setId(++identificator);
     }
 
-    public void addLike(Integer userId){
+    public void generateSetOfLikes() {
+        this.setOfLikes = new HashSet<>();
+    }
+
+    public void addLike(int userId){
         setOfLikes.add(userId);
     }
 
-    public void deleteLike (Integer userId){
+    public void deleteLike (int userId){
         setOfLikes.remove(userId);
-    }
-
-    public void generateSetOfLikes() {
-        this.setOfLikes = new HashSet<>();
     }
 
     @Override

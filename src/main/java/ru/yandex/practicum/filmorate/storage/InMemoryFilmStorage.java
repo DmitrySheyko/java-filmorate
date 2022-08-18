@@ -14,10 +14,6 @@ import java.util.Map;
 public class InMemoryFilmStorage implements FilmStorage {
     private final Map<Integer, Film> films = new HashMap<>();
 
-    public List<Film> getAllFilms() {
-        return new ArrayList<>(films.values());
-    }
-
     public Film addFilm(Film newFilm) {
         newFilm.generateAndSetId();
         newFilm.generateSetOfLikes();
@@ -26,20 +22,22 @@ public class InMemoryFilmStorage implements FilmStorage {
         return newFilm;
     }
 
-    public Film getFilm(int filmId){
-        return films.get(filmId);
-    }
-
-    public Film getFilmById(int filmId){
-        return films.get(filmId);
-    }
-
     public Film updateFilm(Film updatedFilm){
         // Добавляем обновленной версии фильма список лайков от старой версии фильма
         updatedFilm.setSetOfLikes(films.get(updatedFilm.getId()).getSetOfLikes());
         films.put(updatedFilm.getId(), updatedFilm);
         log.info("Данные о фильме id = {} обновлены", updatedFilm.getId());
         return updatedFilm;
+    }
+
+    public List<Film> getAllFilms() {
+        log.info("Наплавоен список всех фильмов");
+        return new ArrayList<>(films.values());
+    }
+
+    public Film getFilmById(int filmId){
+        log.info("Наплавоен фильм id={}", filmId);
+        return films.get(filmId);
     }
 
     public void addLike(int filmId, int userId){
