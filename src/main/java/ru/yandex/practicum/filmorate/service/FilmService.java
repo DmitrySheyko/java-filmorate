@@ -104,31 +104,17 @@ public class FilmService {
     }
 
     public boolean checkIsFilmDataCorrect(Film newFilm) {
-        if (newFilm.getName() == null || newFilm.getName().isBlank()) {
-            log.info("Не указано название фильма");
-            throw new ValidationException("Не указано название фильма");
-        } else if (newFilm.getDescription() == null || newFilm.getDescription().length() > 200) {
-            log.info("Превышена допустимая длина описания - 200 символов");
-            throw new ValidationException("Превышена допустимая длина описания - 200 символов");
-        } else if (newFilm.getReleaseDate() == null || getInstance(newFilm.getReleaseDate())
-                .isBefore(MIN_RELEASE_DATA)) {
+        if (getInstance(newFilm.getReleaseDate()).isBefore(MIN_RELEASE_DATA)) {
             log.info("Указана некорректная дата выхода фильма");
             throw new ValidationException(String.format("Указана некорректная дата выхода фильма. Требуется дата" +
-                    " не ранее %s", MIN_RELEASE_DATA.toString()));
-        } else if (getDuration(newFilm.getDuration()).isNegative() || getDuration(newFilm.getDuration()).isZero()) {
-            log.info("Указана некорректная длительность фильма. Требуется длительность более 0 минут.");
-            throw new ValidationException("Указана некорректная длительность фильма");
+                    " не ранее %s", MIN_RELEASE_DATA));
         } else {
             return true;
         }
     }
 
-    private Instant getInstance(String time) {  // TODO переделать работу со временем
+    private Instant getInstance(String time) {
         return Instant.from(ZonedDateTime.of(LocalDate.parse(time, dateTimeFormatter),
                 LocalTime.of(0, 0), ZoneId.of("Europe/Moscow")));
-    }
-
-    private Duration getDuration(long duration) {
-        return Duration.ofMinutes(duration);
     }
 }

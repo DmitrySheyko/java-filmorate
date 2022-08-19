@@ -115,13 +115,10 @@ public class UserService {
     }
 
     public boolean checkIsUserDataCorrect(User newUser) {
-        if (newUser.getEmail() == null || (!newUser.getEmail().contains("@")) || newUser.getEmail().isBlank()) {
-            log.info("Указан некорректный email");
-            throw new ValidationException("Указан некорректный email");
-        } else if (newUser.getLogin() == null || newUser.getLogin().isBlank() || newUser.getLogin().contains(" ")) {
+        if (newUser.getLogin().contains(" ")) {
             log.info("Указан некорректный login");
             throw new ValidationException("Указан некорректный login");
-        } else if (newUser.getBirthday() == null || getInstance(newUser.getBirthday()).isAfter(Instant.now())) {
+        } else if (getInstance(newUser.getBirthday()).isAfter(Instant.now())) {
             log.info("Указана некорректная дата рождения");
             throw new ValidationException("Указана некорректная дата рождения");
         }
