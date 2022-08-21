@@ -9,16 +9,16 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Data
-@EqualsAndHashCode(of = { "id"})
+@EqualsAndHashCode(of = {"id"})
 public class User {
     private static int identificator = 0;
     private int id;
-    @Email (message = "Указан некорректный email")
+    @Email(message = "Указан некорректный email")
     private String email;
-    @NotBlank (message = "Не указан login")
+    @NotBlank(message = "Не указан login")
     private String login;
     private String name;
-    @NotBlank (message = "Не указана дата рождения")
+    @NotBlank(message = "Не указана дата рождения")
     private String birthday;
     private Set<Integer> setOfFriends;
 

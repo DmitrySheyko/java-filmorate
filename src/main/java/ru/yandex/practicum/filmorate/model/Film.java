@@ -11,7 +11,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Data
-@EqualsAndHashCode(of = { "id"})
+@EqualsAndHashCode(of = {"id"})
 public class Film {
     private static int identificator = 0;
     private int id;
