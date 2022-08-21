@@ -9,7 +9,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Data
-@EqualsAndHashCode(of = { "id", "email", "login"})
+@EqualsAndHashCode(of = { "id"})
 public class User {
     private static int identificator = 0;
     private int id;
