@@ -21,31 +21,31 @@ public class ErrorHandler {
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(ValidationException.class)
-    public ErrorResponse handlerOfValidationException(final ValidationException e) {
-        return new ErrorResponse(e.getMessage());
+    public String handlerOfValidationException(final ValidationException e) {
+        return String.format("Ошибка. %s", e.getMessage());
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ErrorResponse handlerOfMethodArgumentNotValidException(final MethodArgumentNotValidException e) {
-        return new ErrorResponse(e.getMessage());
+    public String handlerOfMethodArgumentNotValidException(final MethodArgumentNotValidException e) {
+        return String.format("Ошибка. %s", e.getMessage());
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(ConstraintViolationException.class)
-    public ErrorResponse handlerOfConstraintViolationException(final ConstraintViolationException e) {
-        return new ErrorResponse(e.getMessage());
+    public String handlerOfConstraintViolationException(final ConstraintViolationException e) {
+        return String.format("Ошибка. %s", e.getMessage());
     }
 
     @ResponseStatus(HttpStatus.NOT_FOUND)
     @ExceptionHandler(ObjectNotFoundException.class)
-    public ErrorResponse handlerOfObjectNotFoundException(final ObjectNotFoundException e) {
-        return new ErrorResponse(e.getMessage());
+    public String handlerOfObjectNotFoundException(final ObjectNotFoundException e) {
+        return String.format("Ошибка. %s", e.getMessage());
     }
 
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ErrorResponse handlerExceptions(final Exception e) {
-        return new ErrorResponse(e.getMessage());
+    public String handlerExceptions(final Exception e) {
+        return String.format("Ошибка. %s", e.getMessage());
     }
 }

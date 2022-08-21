@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
 
-import javax.validation.Valid; //TODO проверить и убрать
+import javax.validation.Valid;
 import java.util.List;
 
 @Slf4j
