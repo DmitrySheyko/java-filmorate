@@ -1,71 +1,71 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.UserService;
 
 import javax.validation.Valid;
-import java.time.*;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Slf4j
 @RestController
 @RequestMapping("/users")
 public class UserController {
-    private final Map<Integer, User> users = new HashMap<>();
-    private final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    private final UserService userService;
 
-    @GetMapping
-    public List<User> getUsers() {
-        return new ArrayList<>(users.values());
+    @Autowired
+    public UserController(UserService userService) {
+        this.userService = userService;
     }
 
     @PostMapping
-    public User addUser(@Valid @RequestBody User newUser) throws ValidationException {
-        if (checkIsUserDataCorrect(newUser)) {
-            users.put(newUser.getId(), newUser);
-        }
-        log.info("Добавлен новый пользователь id={}", newUser.getId());
-        return newUser;
+    public User addUser(@Valid @RequestBody User newUser) {
+        log.info("Получен запрос на добавление нового пользователя");
+        return userService.addUser(newUser);
     }
 
     @PutMapping
-    public User updateUser(@Valid @RequestBody User newUser) throws ValidationException {
-        if (checkIsUserDataCorrect(newUser)) {
-            if (users.containsKey(newUser.getId())) {
-                users.put(newUser.getId(), newUser);
-                log.info("Данные пользователя id = {} обновлены", newUser.getId());
-            } else {
-                throw new ValidationException("Не удалось обновить данные т.к. пользователь id=" + newUser.getId() +
-                        " не найден");
-            }
-        }
-        return newUser;
+    public User updateUser(@Valid @RequestBody User updatedUser) {
+        log.info("Получен запрос на обновление данных пользователя id={}", updatedUser.getId());
+        return userService.updateUser(updatedUser);
     }
 
-    public boolean checkIsUserDataCorrect(User newUser) throws ValidationException {
-        if (newUser.getEmail() == null || (!newUser.getEmail().contains("@")) || newUser.getEmail().isBlank()) {
-            log.info("Не удалось добавить/обновать пользователя т.к. некорректно указан email");
-            throw new ValidationException("Указан некорректный email");
-        } else if (newUser.getLogin() == null || newUser.getLogin().isBlank() || newUser.getLogin().contains(" ")) {
-            log.info("Не удалось добавить/обновать пользователя т.к. некорректно указан login");
-            throw new ValidationException("Некорректно указан login");
-        } else if (newUser.getBirthday() == null || getInstance(newUser.getBirthday()).isAfter(Instant.now())) {
-            log.info("Не удалось добавить/обновать пользователя т.к. некорректно указана дата рождения");
-            throw new ValidationException("Некорректно указана дата рождения");
-        } else if (newUser.getName().isBlank()) {
-            newUser.setName(newUser.getLogin());
-        }
-        return true;
+    @GetMapping("{id}")
+    public User getUserById(@PathVariable("id") int userId) {
+        log.info("Получен запрос на получение пользователя id={}", userId);
+        return userService.getUserById(userId);
     }
 
-    private Instant getInstance(String time) {
-        return Instant.from(ZonedDateTime.of(LocalDate.parse(time, dateTimeFormatter),
-                LocalTime.of(0, 0), ZoneId.of("Europe/Moscow")));
+    @GetMapping
+    public List<User> getAllUsers() {
+        log.info("Получен запрос на получение списка пользователей");
+        return userService.getAllUsers();
+    }
+
+    @PutMapping("{id}/friends/{friendId}")
+    public void addFriend(@PathVariable("id") int userId, @PathVariable int friendId) {
+        log.info("Получен запрос на добавление польхователя id={} в друзья пользователю id={}", friendId, userId);
+        userService.addFriend(userId, friendId);
+    }
+
+    @DeleteMapping("{id}/friends/{friendId}")
+    public void deleteFriend(@PathVariable("id") int userId, @PathVariable("friendId") int friendId) {
+        log.info("Получен запрос на удаление польхователя id={} из друзей пользователя id={}", friendId, userId);
+        userService.deleteFriend(userId, friendId);
+    }
+
+    @GetMapping("{id}/friends")
+    @ResponseBody
+    public List<User> getListOfFriends(@PathVariable("id") int userId) {
+        log.info("Получен запрос на получения списка друзей пользователя id={}", userId);
+        return userService.getListOfFriends(userId);
+    }
+
+    @GetMapping("{id}/friends/common/{otherId}")
+    List<User> getListOfCommonFriends(@PathVariable("id") int userId, @PathVariable("otherId") int friendId) {
+        log.info("Получен запрос на получение общего списка друзей пользователей id={} и id={}", userId, friendId);
+        return userService.getListOfCommonFriends(userId, friendId);
     }
 }
