@@ -20,7 +20,7 @@ public class MpaService {
         return mpaDbStorage.getAllMpaRatings();
     }
 
-    public Mpa getMpaRatingById(String ratingId){
+    public Mpa getMpaRatingById(int ratingId){
         return mpaDbStorage.getMpaRatingById(ratingId);
     }
 }

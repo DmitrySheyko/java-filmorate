@@ -10,74 +10,138 @@
 * 1 - пользователь friend_id подвердил заявку в друзья.
 
 ### Получение списка всех фильмов (эндпоинт возвращает List < Film >) ###
-__SELECT__ f.*,  
-__GROUP_CONCAT__(fc.film_category),  
-r.rate_name  
-__FROM__ film __AS__ f  
-__LEFT JOIN__ film_category __AS__ fc  
-__ON__ f.film_id=fc.film_id  
-__LEFT JOIN__ rate __AS__ r  
-__ON__ f.rate=r.rate_id  
-__GROUP_BY__ f.film_id  
+__SELECT__ f.film_id,  
+f.film_name,  
+f.description,  
+f.duration,  
+f.rating,  
+f.release_date,  
+f.rating,  
+r.rating_name,  
+result.genre_id_name  
+__FROM__ films __AS__ f __LEFT JOIN__ ratings __AS__ r  
+__ON__ f.rating=r.rating_id  
+__LEFT JOIN__ (__SELECT__ fg.film_id,  
+__STRING_AGG__(genre_id_concat_name.genre_concat_name , ',') __AS__ genre_id_name  
+__FROM__ films_genres __AS__ fg  
+__LEFT JOIN__ (select genre_id, (genre_id || ':' || genre_name) __AS__ genre_concat_name  
+__FROM__ genres as g ) __AS__ genre_Id_concat_name  
+__ON__ fg.genre_id =  genre_Id_concat_name.genre_id  
+__GROUP BY__  fg.film_id) __AS__ result   
+__ON__ f.film_id = result.film_id  
 __ORDER BY__ f.film_id;
 
 
 ### Получение фильма по id ###
-__SELECT__ f.*,  
-__GROUP_CONCAT__(fc.film_category),  
-r.rate_name  
-__FROM__ film __AS__ f  
-__LEFT JOIN__ film_category __AS__ fc  
-__ON__ f.film_id=fc.film_id  
-__LEFT JOIN__ rate __AS__ r  
-__ON__ f.rate=r.rate_id  
-__WHERE__ f.film_id=_id_  
-__GROUP_BY__ f.film_id;
+__SELECT__ f.film_id,  
+"f.film_name,  
+"f.description,  
+"f.duration,  
+"f.rating,  
+"f.release_date,  
+"f.rating,  
+"r.rating_name,  
+"result.genre_id_name  
+__FROM__ films AS f __LEFT JOIN__ ratings __AS__ r  
+__ON__ f.rating=r.rating_id  
+__LEFT JOIN__ (SELECT fg.film_id,  
+__STRING_AGG__(genre_id_concat_name.genre_concat_name , ',') __AS__ genre_id_name  
+__FROM__ films_genres __AS__ fg  
+__LEFT JOIN__ (__SELECT__ genre_id, (genre_id || ':' || genre_name) __AS__ genre_concat_name  
+__FROM__ genres __AS__ g ) __AS__ genre_Id_concat_name  
+__ON__ fg.genre_id = genre_Id_concat_name.genre_id  
+__GROUP BY__  fg.film_id) AS result  
+__ON__ f.film_id = result.film_id  
+__WHERE__ f.film_id = ?;
 
 
 ### Получение списка длинной count, сожержащего наиболее популярные фильмы по количеству лайков (эндпоинт возвращает List< Film >) ###
-__SELECT__ f.*,  
-__GROUP_CONCAT__(fc.film_category),  
-r.rate_name  
-__FROM__ film __AS__ f  
-__RIGHT JOIN__ film_likes __AS__ fl  
-__ON__ f.film_id=fl.film_id  
-__LEFT JOIN__ film_category __AS__ fc  
-__ON__ fl.film_id=fc.film_id  
-__LEFT JOIN__ rate __AS__ r  
-__ON__ f.rate=r.rate_id  
-__GROUP BY__  fl.film_id  
-__ORDER BY COUNT__(fl.user_id) __DESC__  
-__LIMIT__ _count_;
+__SELECT__ film_full_info.film_id,  
+"film_full_info.film_name,  
+"film_full_info.description,  
+"film_full_info.duration,  
+"film_full_info.rating,  
+"film_full_info.rating_name,  
+"film_full_info.release_date,  
+"film_full_info.genre_id_name,  
+"count (fl.user_id)  
+__FROM__ films_likes __AS__ fl __RIGHT JOIN__ (__SELECT__ f.film_id,   
+"f.film_name,  
+"f.description,  
+"f.duration,  
+"f.release_date,  
+"f.rating,  
+"r.rating_name,  
+"result.genre_id_name __FROM__ films AS f __LEFT JOIN__ ratings __AS__ r  
+__ON__ f.rating=r.rating_id __LEFT JOIN__ (SELECT fg.film_id,  
+__STRING_AGG__(genre_id_concat_name.genre_concat_name , ',') __AS__ genre_id_name  
+__FROM__ films_genres __AS__ fg   
+__LEFT JOIN__ (__SELECT__ genre_id, (genre_id || ':' || genre_name) __AS__ genre_concat_name  
+__FROM__ genres __AS__ g ) __AS__ genre_Id_concat_name  
+__ON__ fg.genre_id = genre_Id_concat_name.genre_id  
+__GROUP BY__  fg.film_id) __AS__ result  
+__ON__ f.film_id = result.film_id) __AS__ film_full_info  
+__ON__ fl.film_id = film_full_info.film_id  
+__GROUP BY__ film_full_info.film_id,  
+"film_full_info.film_name,  
+"film_full_info.description,  
+"film_full_info.duration,  
+"film_full_info.rating,  
+"film_full_info.rating_name,  
+"film_full_info.release_date,   
+"film_full_info.genre_id_name  
+__ORDER BY__ count(fl.user_id) __DESC__  
+__LIMIT__ ?;
 
 
 ### Получение списка всех пользователей (эндпоинт возвращает List< User >) ###
-__SELECT__ *  
-__FROM__ user __AS__ u  
+__SELECT__ user_id,   
+user_name,  
+login,  
+email,   
+birth_day  
+__FROM__ users  
 __ORDER BY__  u.user_id;  
 
 
 ### Получение пользователя по id ###
-__SELECT__ *  
-__FROM__ user __AS__ u  
-__WHERE__ u.user_id=_id_;  
+__SELECT__ user_id,   
+user_name,  
+login,  
+email,   
+birth_day    
+__FROM__ users   
+__WHERE__ u.user_id = ?;  
 
 
 ### Получение списка друзей пользователя по его id (эндпоинт возвращает List< User >) ###
-__SELECT__ u.*  
-__FROM__ user __AS__ u  
-__RIGHT JOIN__ user_friend __AS__ uf  
-__ON__ u.user_id=uf.user_id  
-__WHERE__ uf.user_id=_id_ __AND__ uf.status=1;
+__SELECT__ u.user_id, 
+u.user_name,  
+u.login,  
+u.email,  
+u.birth_day  
+__FROM__ users_friends __AS__ uf  
+__RIGHT JOIN__ users __AS__ u  
+__ON__ uf.user_id=u.user_id  
+__WHERE__ uf.user_id=_?_  
+__ORDER BY__ u.user_id;
 
 
 ### Получение списка общих друзей пользователей id1 и id2 (эндпоинт возвращает List< User >) ###
-__SELECT__ u.*  
-__FROM__ user_friend __AS__ uf  
-__WHERE__ uf.user_id=_id1_  
-__AND__ uf.status=1  
-__AND__ uf.friend_id __IN__  
-(__SELECT__ uf.friend_id  
-__FROM__ uf  
-__WHERE__ uf.user_id =_id2_  
-__AND__ uf.status=1);
+__WITH__ friends __AS__  
+(__SELECT__ user_id,  
+friend_id  
+__FROM__ users_friends __AS__ uf  
+__WHERE__ uf.status __IS NOT NULL__ )  
+__SELECT__ u.user_id,  
+u.user_name,  
+u.email,  
+u.login,  
+u.birth_day  
+__FROM__ users u __JOIN__ friends f1  
+__ON__ u.user_id = f1.friend_id  
+__JOIN friends__ f2 " +
+__ON__ f1.friend_id = f2.friend_id  
+__AND__ f1.friend_id <> f2.user_id  
+__AND__ f2.friend_id <> f1.user_id  
+__WHERE__ f1.user_id = ? __AND__ f2.user_id = ?";

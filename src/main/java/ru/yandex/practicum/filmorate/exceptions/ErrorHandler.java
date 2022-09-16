@@ -5,27 +5,10 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-//import ru.yandex.practicum.filmorate.controller.FilmController;
-import ru.yandex.practicum.filmorate.controller.UserController;
-//import ru.yandex.practicum.filmorate.service.FilmService;
-import ru.yandex.practicum.filmorate.service.UserService;
-import ru.yandex.practicum.filmorate.storage.FilmDbStorage;
-import ru.yandex.practicum.filmorate.storage.UserDbStorage;
-
 
 import javax.validation.ConstraintViolationException;
 
-@RestControllerAdvice(assignableTypes = {
-//        FilmController.class,
-//        UserController.class,
-//        UserService.class,
-//        FilmDbStorage.class,
-//        UserDbStorage.class
-        //,
-//        FilmService.class,
- //       InMemoryFilmStorage.class,
-//        InMemoryUserStorage.class
-        })
+@RestControllerAdvice
 public class ErrorHandler {
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)

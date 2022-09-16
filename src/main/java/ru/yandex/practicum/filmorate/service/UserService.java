@@ -4,14 +4,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.exceptions.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.time.*;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -21,7 +19,7 @@ public class UserService {
     private final DateTimeFormatter dateTimeFormatter;
 
     @Autowired
-    public UserService(@Qualifier ("userDbStorage") UserStorage userStorage) {
+    public UserService(@Qualifier("userDbStorage") UserStorage userStorage) {
         this.userStorage = userStorage;
         dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     }
@@ -32,12 +30,6 @@ public class UserService {
 
     public User getUserById(int userId) {
         return userStorage.getUserById(userId);
-//        if (userStorage.checkIsUserInStorage(userId)) {
-//            return userStorage.getUserById(userId);
-//        } else {
-//            log.info("Пользователь id={} не найден", userId);
-//            throw new ObjectNotFoundException(String.format("Пользователь id=%s не найден", userId));
-//        }
     }
 
     public User addUser(User newUser) {

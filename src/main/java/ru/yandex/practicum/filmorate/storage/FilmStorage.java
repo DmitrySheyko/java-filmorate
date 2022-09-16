@@ -11,12 +11,6 @@ public interface FilmStorage {
 
     Film updateFilm(Film updatedFilm);
 
-//    boolean checkIsFilmInStorage(Film film);
-//
-//    boolean checkIsFilmInStorage(int filmId);
-//
-//    boolean checkIsFilmHasLikeFromUser(int filmId, int userId);
-
     void addLike (int filmId, int userId);
 
     void deleteLike(int filmId, int userid);
