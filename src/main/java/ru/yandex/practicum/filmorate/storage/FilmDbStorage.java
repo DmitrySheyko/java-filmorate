@@ -222,7 +222,8 @@ public class FilmDbStorage implements FilmStorage {
                 "film_full_info.rating_name, " +
                 "film_full_info.release_date,  " +
                 "film_full_info.genre_id_name " +
-                "ORDER BY count(fl.user_id) DESC " +
+                "ORDER BY count(fl.user_id) DESC, " +
+                "film_full_info.film_id " +
                 "LIMIT ?";
         return jdbcTemplate.query(sqlQuery, this::mapRowToFilm, count);
     }
