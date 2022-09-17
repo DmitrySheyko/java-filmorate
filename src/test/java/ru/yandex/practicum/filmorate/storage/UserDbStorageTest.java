@@ -23,19 +23,17 @@ class UserDbStorageTest {
 
     @Test
     public void shouldGetUserById() {
-        User testUser = userStorage.addUser(User.builder().name("TestUserName").login("TestUserLogin")
-                .email("TestUserEmail@ru.ru").birthday("2000-10-10").build());
-        Optional<User> userOptional = Optional.ofNullable(userStorage.getUserById(testUser.getId()));
+        Optional<User> userOptional = Optional.ofNullable(userStorage.getUserById(4));
         assertThat(userOptional).isPresent().hasValueSatisfying(user ->
-                assertThat(user).hasFieldOrPropertyWithValue("id", testUser.getId()));
+                assertThat(user).hasFieldOrPropertyWithValue("id", 4));
         assertThat(userOptional).isPresent().hasValueSatisfying(user ->
-                assertThat(user).hasFieldOrPropertyWithValue("name", testUser.getName()));
+                assertThat(user).hasFieldOrPropertyWithValue("name", "TestUserName4"));
         assertThat(userOptional).isPresent().hasValueSatisfying(user ->
-                assertThat(user).hasFieldOrPropertyWithValue("login", testUser.getLogin()));
+                assertThat(user).hasFieldOrPropertyWithValue("login", "TestUserLogin4"));
         assertThat(userOptional).isPresent().hasValueSatisfying(user ->
-                assertThat(user).hasFieldOrPropertyWithValue("email", testUser.getEmail()));
+                assertThat(user).hasFieldOrPropertyWithValue("email", "TestUserEmail4@ru.ru"));
         assertThat(userOptional).isPresent().hasValueSatisfying(user ->
-                assertThat(user).hasFieldOrPropertyWithValue("birthday", testUser.getBirthday()));
+                assertThat(user).hasFieldOrPropertyWithValue("birthday", "2014-10-14"));
     }
 
     @Test
@@ -46,25 +44,24 @@ class UserDbStorageTest {
         assertThat(userOptional).isPresent().hasValueSatisfying(user ->
                 assertThat(user).hasFieldOrPropertyWithValue("id", testUser.getId()));
         assertThat(userOptional).isPresent().hasValueSatisfying(user ->
-                assertThat(user).hasFieldOrPropertyWithValue("name", testUser.getName()));
+                assertThat(user).hasFieldOrPropertyWithValue("name", "TestUserName"));
         assertThat(userOptional).isPresent().hasValueSatisfying(user ->
-                assertThat(user).hasFieldOrPropertyWithValue("login", testUser.getLogin()));
+                assertThat(user).hasFieldOrPropertyWithValue("login", "TestUserLogin"));
         assertThat(userOptional).isPresent().hasValueSatisfying(user ->
-                assertThat(user).hasFieldOrPropertyWithValue("email", testUser.getEmail()));
+                assertThat(user).hasFieldOrPropertyWithValue("email", "TestUserEmail@ru.ru"));
         assertThat(userOptional).isPresent().hasValueSatisfying(user ->
-                assertThat(user).hasFieldOrPropertyWithValue("birthday", testUser.getBirthday()));
+                assertThat(user).hasFieldOrPropertyWithValue("birthday", "2000-10-10"));
         List<User> userList = userStorage.getAllUsers();
         assertThatList(userList).hasSizeBetween(5, 5);
     }
 
     @Test
     public void shouldUpdateUser() {
-        List<User> listOfUsers = userStorage.getAllUsers();
-        userStorage.updateUser(User.builder().id(listOfUsers.get(0).getId()).name("UpdatedName").login("UpdatedLogin")
+        userStorage.updateUser(User.builder().id(1).name("UpdatedName").login("UpdatedLogin")
                 .email("UpdatedEmail1@ru.ru").birthday("2019-10-11").build());
-        Optional<User> userOptional = Optional.ofNullable(userStorage.getUserById(listOfUsers.get(0).getId()));
+        Optional<User> userOptional = Optional.ofNullable(userStorage.getUserById(1));
         assertThat(userOptional).isPresent().hasValueSatisfying(user ->
-                assertThat(user).hasFieldOrPropertyWithValue("id", listOfUsers.get(0).getId()));
+                assertThat(user).hasFieldOrPropertyWithValue("id", 1));
         assertThat(userOptional).isPresent().hasValueSatisfying(user ->
                 assertThat(user).hasFieldOrPropertyWithValue("name", "UpdatedName"));
         assertThat(userOptional).isPresent().hasValueSatisfying(user ->
@@ -82,7 +79,7 @@ class UserDbStorageTest {
     }
 
     @Test
-    public void shouldGetListOfFriands() {
+    public void shouldGetListOfFriends() {
         List<User> userList = userStorage.getAllUsers();
         User testUser = userList.get(0);
         User testFriend1 = userList.get(1);

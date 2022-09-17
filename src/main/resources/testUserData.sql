@@ -1,65 +1,19 @@
-DELETE
-FROM RATINGS;
-
-INSERT INTO RATINGS (RATING_NAME)
-VALUES ('G');
-
-INSERT INTO RATINGS (RATING_NAME)
-VALUES ('PG');
-
-INSERT INTO RATINGS (RATING_NAME)
-VALUES ('PG-13');
-
-INSERT INTO RATINGS (RATING_NAME)
-VALUES ('R');
-
-INSERT INTO RATINGS (RATING_NAME)
-VALUES ('NC-17');
-
-DELETE
-FROM GENRES;
-
-INSERT INTO GENRES (GENRE_NAME)
-VALUES ('Комедия');
-
-INSERT INTO GENRES (GENRE_NAME)
-VALUES ('Драма');
-
-INSERT INTO GENRES (GENRE_NAME)
-VALUES ('Мультфильм');
-
-INSERT INTO GENRES (GENRE_NAME)
-VALUES ('Документальный');
-
-INSERT INTO GENRES (GENRE_NAME)
-VALUES ('Вестерн');
-
-INSERT INTO GENRES (GENRE_NAME)
-VALUES ('Ужасы');
-
-DELETE
-FROM USERS;
-
-INSERT INTO USERS (USER_NAME, LOGIN, EMAIL, BIRTH_DAY)
+INSERT INTO users (user_name, login, email, birth_day)
 VALUES ('TestUserName1', 'TestUserLogin1', 'TestUserEmail1@ru.ru', '2011-10-11');
 
-INSERT INTO USERS (USER_NAME, LOGIN, EMAIL, BIRTH_DAY)
+INSERT INTO users (user_name, login, email, birth_day)
 VALUES ('TestUserName2', 'TestUserLogin2', 'TestUserEmail2@ru.ru', '2012-10-12');
 
-INSERT INTO USERS (USER_NAME, LOGIN, EMAIL, BIRTH_DAY)
+INSERT INTO users (user_name, login, email, birth_day)
 VALUES ('TestUserName3', 'TestUserLogin3', 'TestUserEmail3@ru.ru', '2013-10-13');
 
-INSERT INTO USERS (USER_NAME, LOGIN, EMAIL, BIRTH_DAY)
+INSERT INTO users (user_name, login, email, birth_day)
 VALUES ('TestUserName4', 'TestUserLogin4', 'TestUserEmail4@ru.ru', '2014-10-14');
 
 DELETE
-FROM FILMS;
+FROM users
+WHERE user_id > 4;
+
 
 DELETE
-FROM FILMS_GENRES;
-
-DELETE
-FROM FILMS_LIKES;
-
-DELETE
-FROM USERS_FRIENDS;
+FROM users_friends;

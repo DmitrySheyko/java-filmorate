@@ -20,14 +20,18 @@ public class GenreDbStorage {
     }
 
     public List<Genre> getAllGenres() {
-        String sqlQuery = "SELECT * FROM GENRES";
+        String sqlQuery = "SELECT genre_id, " +
+                "genre_name " +
+                "FROM genres " +
+                "ORDER BY genre_id ";
         return jdbcTemplate.query(sqlQuery, this::mapRowToGenre);
     }
 
     public Genre getGenreById(int genreId) {
         if (isGenreInStorage(genreId)) {
-            String sqlQuery = "SELECT * FROM genres WHERE genre_id = ?";
-            System.out.println("Смотрим как работает");
+            String sqlQuery = "SELECT genre_id, " +
+                    "genre_name " +
+                    "FROM genres WHERE genre_id = ?";
             return jdbcTemplate.queryForObject(sqlQuery, this::mapRowToGenre, genreId);
         } else {
             throw new ObjectNotFoundException(String.format("Жанр id=%s не найден", genreId));
@@ -43,11 +47,11 @@ public class GenreDbStorage {
 
     private boolean isGenreInStorage(int genreId) {
         String sqlQuery = "SELECT EXISTS (SELECT 1 FROM genres WHERE genre_id = ?)";
-        return jdbcTemplate.queryForObject(sqlQuery, Boolean.class, genreId);
+        return Boolean.TRUE.equals(jdbcTemplate.queryForObject(sqlQuery, Boolean.class, genreId));
     }
 
     private boolean isGenreInStorage(Genre genre) {
         String sqlQuery = "SELECT EXISTS (SELECT 1 FROM genres WHERE genre_id = ?)";
-        return jdbcTemplate.queryForObject(sqlQuery, Boolean.class, genre.getId());
+        return Boolean.TRUE.equals(jdbcTemplate.queryForObject(sqlQuery, Boolean.class, genre.getId()));
     }
 }

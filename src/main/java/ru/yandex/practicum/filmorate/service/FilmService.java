@@ -16,8 +16,8 @@ import java.util.List;
 @Slf4j
 @Service
 public class FilmService {
-    public final FilmStorage filmStorage;
-    public final UserStorage userStorage;
+    private final FilmStorage filmStorage;
+    private final UserStorage userStorage;
     private final DateTimeFormatter dateTimeFormatter;
     private final static Instant MIN_RELEASE_DATA = Instant.from(ZonedDateTime.of(LocalDateTime.of(1895, 12,
             28, 0, 0), ZoneId.of("Europe/Moscow")));
@@ -39,11 +39,17 @@ public class FilmService {
     }
 
     public Film addFilm(Film newFilm) {
-        return filmStorage.addFilm(newFilm);
+        if (checkIsFilmDataCorrect(newFilm)) {
+            return filmStorage.addFilm(newFilm);
+        }
+        return null;
     }
 
     public Film updateFilm(Film updatedFilm) {
-        return filmStorage.updateFilm(updatedFilm);
+        if (checkIsFilmDataCorrect(updatedFilm)) {
+            return filmStorage.updateFilm(updatedFilm);
+        }
+        return null;
     }
 
     public void addLike(int filmId, int userId) {

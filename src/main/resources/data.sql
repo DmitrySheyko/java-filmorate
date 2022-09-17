@@ -1,32 +1,32 @@
-INSERT INTO RATINGS (RATING_NAME)
+INSERT INTO ratings (rating_name)
 VALUES ('G');
 
-INSERT INTO RATINGS (RATING_NAME)
+INSERT INTO ratings (rating_name)
 VALUES ('PG');
 
-INSERT INTO RATINGS (RATING_NAME)
+INSERT INTO ratings (rating_name)
 VALUES ('PG-13');
 
-INSERT INTO RATINGS (RATING_NAME)
+INSERT INTO ratings (rating_name)
 VALUES ('R');
 
-INSERT INTO RATINGS (RATING_NAME)
+INSERT INTO ratings (rating_name)
 VALUES ('NC-17');
 
-INSERT INTO GENRES (GENRE_NAME)
+INSERT INTO genres (genre_name)
 VALUES ('Комедия');
 
-INSERT INTO GENRES (GENRE_NAME)
+INSERT INTO genres (genre_name)
 VALUES ('Драма');
 
-INSERT INTO GENRES (GENRE_NAME)
+INSERT INTO genres (genre_name)
 VALUES ('Мультфильм');
 
-INSERT INTO GENRES (GENRE_NAME)
+INSERT INTO genres (genre_name)
 VALUES ('Документальный');
 
-INSERT INTO GENRES (GENRE_NAME)
+INSERT INTO genres (genre_name)
 VALUES ('Вестерн');
 
-INSERT INTO GENRES (GENRE_NAME)
+INSERT INTO genres (genre_name)
 VALUES ('Ужасы');

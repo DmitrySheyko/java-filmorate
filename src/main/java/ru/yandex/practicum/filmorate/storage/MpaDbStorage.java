@@ -20,13 +20,19 @@ public class MpaDbStorage {
     }
 
     public List<Mpa> getAllMpaRatings() {
-        String sqlQuery = "SELECT rating_id, rating_name FROM ratings";
+        String sqlQuery = "SELECT rating_id, " +
+                "rating_name " +
+                "FROM ratings " +
+                "ORDER BY rating_id ";
         return jdbcTemplate.query(sqlQuery, this::mapRowToMpa);
     }
 
     public Mpa getMpaRatingById(int ratingId) {
         if (isMpaRatingInStorage(ratingId)) {
-            String sqlQuery = "SELECT rating_id, rating_name FROM ratings WHERE rating_id = ?";
+            String sqlQuery = "SELECT rating_id, " +
+                    "rating_name " +
+                    "FROM ratings " +
+                    "WHERE rating_id = ?";
             return jdbcTemplate.queryForObject(sqlQuery, this::mapRowToMpa, ratingId);
         } else {
             throw new ObjectNotFoundException(String.format("Рейтинг MPA id=%s не найден", ratingId));
@@ -42,11 +48,11 @@ public class MpaDbStorage {
 
     private boolean isMpaRatingInStorage(Mpa mpa) {
         String sqlQuery = "SELECT EXISTS (SELECT 1 FROM ratings WHERE rating_id = ?)";
-        return jdbcTemplate.queryForObject(sqlQuery, Boolean.class, mpa.getId());
+        return Boolean.TRUE.equals(jdbcTemplate.queryForObject(sqlQuery, Boolean.class, mpa.getId()));
     }
 
     private boolean isMpaRatingInStorage(int mpaId) {
         String sqlQuery = "SELECT EXISTS (SELECT 1 from ratings WHERE rating_id = ?)";
-        return jdbcTemplate.queryForObject(sqlQuery, Boolean.class, mpaId);
+        return Boolean.TRUE.equals(jdbcTemplate.queryForObject(sqlQuery, Boolean.class, mpaId));
     }
 }

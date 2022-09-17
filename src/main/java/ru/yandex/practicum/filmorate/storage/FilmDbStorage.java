@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.storage;
 
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -17,39 +16,40 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
 
-@Slf4j
 @Repository
 public class FilmDbStorage implements FilmStorage {
     private final JdbcTemplate jdbcTemplate;
-    private final MpaDbStorage mpaDbStorage;
 
     @Autowired
-    public FilmDbStorage(JdbcTemplate jdbcTemplate, MpaDbStorage mpaDbStorage) {
+    public FilmDbStorage(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
-        this.mpaDbStorage = mpaDbStorage;
     }
 
     @Override
     public List<Film> getAllFilms() {
-        String sqlQuery = "SELECT f.film_id, " +
+        String sqlQuery = " WITH result_film_Id_genre AS " +
+                "(SELECT fg.film_id, " +
+                "STRING_AGG (result_genre.id_concat_name, ',') AS genre_id_name " +
+                "FROM films_genres AS fg " +
+                "LEFT JOIN (SELECT genre_id, (genre_id || ':' || genre_name) AS id_concat_name " +
+                "FROM genres AS g) AS result_genre " +
+                "ON fg.genre_id = result_genre.genre_id " +
+                "GROUP BY fg.film_id) " +
+
+                "SELECT f.film_id, " +
                 "f.film_name, " +
                 "f.description, " +
-                "f.duration," +
+                "f.duration, " +
                 "f.rating, " +
                 "f.release_date, " +
                 "f.rating, " +
                 "r.rating_name, " +
-                "result.genre_id_name " +
-                "FROM films AS f LEFT JOIN ratings AS r " +
-                "ON f.rating=r.rating_id " +
-                "LEFT JOIN (SELECT fg.film_id, " +
-                "STRING_AGG(genre_id_concat_name.genre_concat_name , ',') AS genre_id_name " +
-                "FROM films_genres AS fg " +
-                "LEFT JOIN (select genre_id, (genre_id || ':' || genre_name) AS genre_concat_name " +
-                "FROM genres as g ) AS genre_Id_concat_name " +
-                "ON fg.genre_id =  genre_Id_concat_name.genre_id " +
-                "GROUP BY  fg.film_id) AS result " +
-                "ON f.film_id = result.film_id " +
+                "result_film_Id_genre.genre_id_name " +
+                "FROM films AS f " +
+                "LEFT JOIN ratings AS r " +
+                "ON f.rating = r.rating_id " +
+                "LEFT JOIN result_film_Id_genre " +
+                "ON f.film_id = result_film_Id_genre.film_id " +
                 "ORDER BY f.film_id ";
         return jdbcTemplate.query(sqlQuery, this::mapRowToFilm);
     }
@@ -68,7 +68,7 @@ public class FilmDbStorage implements FilmStorage {
             stmt.setInt(5, newFilm.getMpa().getId());
             return stmt;
         }, keyHolder);
-        newFilm.setId(keyHolder.getKey().intValue());
+        newFilm.setId(Objects.requireNonNull(keyHolder.getKey()).intValue());
         if (newFilm.getGenres() != null) {
             for (Genre genre : newFilm.getGenres()) {
                 String sqlQueryForGenres = "INSERT INTO films_genres (film_id, genre_id) VALUES (?, ?)";
@@ -129,26 +129,30 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public Film getFilmById(int filmId) {
         if (checkIsFilmInStorage(filmId)) {
-            String sqlQuery = "SELECT f.film_id, " +
+            String sqlQuery = " WITH  result_film_Id_genre AS " +
+                    "(SELECT fg.film_id, " +
+                    "STRING_AGG (result_genre .id_concat_name , ',') AS  genre_id_name " +
+                    "FROM films_genres AS fg " +
+                    "LEFT JOIN (SELECT genre_id, (genre_id || ':' || genre_name) AS id_concat_name " +
+                    "FROM genres AS g) AS result_genre " +
+                    "ON fg.genre_id = result_genre.genre_id " +
+                    "GROUP BY  fg.film_id) " +
+
+                    "SELECT f.film_id, " +
                     "f.film_name, " +
                     "f.description, " +
-                    "f.duration," +
+                    "f.duration, " +
                     "f.rating, " +
                     "f.release_date, " +
                     "f.rating, " +
                     "r.rating_name, " +
-                    "result.genre_id_name " +
-                    "FROM films AS f LEFT JOIN ratings AS r " +
-                    "ON f.rating=r.rating_id " +
-                    "LEFT JOIN (SELECT fg.film_id, " +
-                    "STRING_AGG(genre_id_concat_name.genre_concat_name , ',') AS genre_id_name " +
-                    "FROM films_genres AS fg " +
-                    "LEFT JOIN (SELECT genre_id, (genre_id || ':' || genre_name) AS genre_concat_name " +
-                    "FROM genres AS g ) AS genre_Id_concat_name " +
-                    "ON fg.genre_id =  genre_Id_concat_name.genre_id " +
-                    "GROUP BY  fg.film_id) AS result " +
-                    "ON f.film_id = result.film_id " +
-                    "WHERE f.film_id = ?";
+                    "result_film_Id_genre.genre_id_name " +
+                    "FROM films AS f " +
+                    "LEFT JOIN ratings AS r " +
+                    "ON f.rating = r.rating_id " +
+                    "LEFT JOIN   result_film_Id_genre " +
+                    "ON f.film_id = result_film_Id_genre.film_id " +
+                    "WHERE f.film_id = ? ";
             return jdbcTemplate.queryForObject(sqlQuery, this::mapRowToFilm, filmId);
         } else {
             throw new ObjectNotFoundException(String.format("Фильм id=%s не найден", filmId));
@@ -181,7 +185,6 @@ public class FilmDbStorage implements FilmStorage {
                         .name(value[1])
                         .build());
             }
-            System.out.println("List of genres: " + listOfGenres);
             return listOfGenres;
         } else {
             return null;
@@ -189,7 +192,7 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     public List<Film> getPopularFilms(int count) {
-        String sqlQuery = "SELECT film_full_info.film_id, " +
+        String sqlQuery = " SELECT film_full_info.film_id, " +
                 "film_full_info.film_name, " +
                 "film_full_info.description, " +
                 "film_full_info.duration, " +
@@ -198,21 +201,30 @@ public class FilmDbStorage implements FilmStorage {
                 "film_full_info.release_date, " +
                 "film_full_info.genre_id_name, " +
                 "count (fl.user_id) " +
-                "FROM films_likes AS fl RIGHT JOIN (SELECT f.film_id, " +
-                "f.film_name, " +
+                "FROM films_likes AS fl RIGHT JOIN " +
+
+                "(WITH  result_film_Id_genre AS " +
+                "(SELECT fg.film_id, " +
+                "STRING_AGG (result_genre.id_concat_name, ',') AS  genre_id_name " +
+                "FROM films_genres AS fg " +
+                "LEFT JOIN (SELECT genre_id, (genre_id || ':' || genre_name) AS id_concat_name " +
+                "FROM genres AS g) AS result_genre " +
+                "ON fg.genre_id =  result_genre.genre_id " +
+                "GROUP BY  fg.film_id) " +
+
+                "SELECT f.film_id, " +
+                "f.film_name,  " +
                 "f.description, " +
                 "f.duration, " +
                 "f.release_date, " +
                 "f.rating, " +
                 "r.rating_name, " +
-                "result.genre_id_name FROM films AS f LEFT JOIN ratings AS r " +
-                "ON f.rating=r.rating_id LEFT JOIN (SELECT fg.film_id, " +
-                "STRING_AGG(genre_id_concat_name.genre_concat_name , ',') AS genre_id_name " +
-                "FROM films_genres AS fg LEFT JOIN (SELECT genre_id, (genre_id || ':' || genre_name) AS genre_concat_name " +
-                "FROM genres AS g ) AS genre_Id_concat_name " +
-                "ON fg.genre_id =  genre_Id_concat_name.genre_id " +
-                "GROUP BY  fg.film_id) AS result " +
-                "ON f.film_id = result.film_id) AS film_full_info " +
+                "result_film_Id_genre.genre_id_name " +
+                "FROM films AS f LEFT JOIN ratings AS r " +
+                "ON f.rating=r.rating_id LEFT JOIN result_film_Id_genre " +
+                "ON f.film_id = result_film_Id_genre.film_id " +
+                "ORDER BY f.film_id) AS  film_full_info " +
+
                 "ON fl.film_id = film_full_info.film_id " +
                 "GROUP BY film_full_info.film_id, " +
                 "film_full_info.film_name, " +
@@ -220,31 +232,31 @@ public class FilmDbStorage implements FilmStorage {
                 "film_full_info.duration, " +
                 "film_full_info.rating, " +
                 "film_full_info.rating_name, " +
-                "film_full_info.release_date,  " +
+                "film_full_info.release_date, " +
                 "film_full_info.genre_id_name " +
                 "ORDER BY count(fl.user_id) DESC, " +
                 "film_full_info.film_id " +
-                "LIMIT ?";
+                "LIMIT ? ";
         return jdbcTemplate.query(sqlQuery, this::mapRowToFilm, count);
     }
 
     private boolean checkIsFilmInStorage(Film film) {
         String sqlQuery = "SELECT EXISTS (SELECT 1 FROM films WHERE film_id = ?)";
-        return jdbcTemplate.queryForObject(sqlQuery, Boolean.class, film.getId());
+        return Boolean.TRUE.equals(jdbcTemplate.queryForObject(sqlQuery, Boolean.class, film.getId()));
     }
 
     private boolean checkIsFilmInStorage(int filmId) {
         String sqlQuery = "SELECT EXISTS (SELECT 1 FROM films WHERE film_id = ?)";
-        return jdbcTemplate.queryForObject(sqlQuery, Boolean.class, filmId);
+        return Boolean.TRUE.equals(jdbcTemplate.queryForObject(sqlQuery, Boolean.class, filmId));
     }
 
     private boolean checkIsFilmHasLikeFromUser(Film film, User user) {
         String sqlQuery = "SELECT EXISTS (SELECT 1 FROM films_likes WHERE film_id = ? AND user_id = ?)";
-        return jdbcTemplate.queryForObject(sqlQuery, Boolean.class, film.getId(), user.getId());
+        return Boolean.TRUE.equals(jdbcTemplate.queryForObject(sqlQuery, Boolean.class, film.getId(), user.getId()));
     }
 
     private boolean checkIsFilmHasLikeFromUser(int filmId, int userId) {
         String sqlQuery = "SELECT EXISTS (SELECT 1 FROM films_likes WHERE film_id = ? AND user_id = ?)";
-        return jdbcTemplate.queryForObject(sqlQuery, Boolean.class, filmId, userId);
+        return Boolean.TRUE.equals(jdbcTemplate.queryForObject(sqlQuery, Boolean.class, filmId, userId));
     }
 }

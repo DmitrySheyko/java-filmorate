@@ -39,7 +39,9 @@ public class UserService {
     }
 
     public User updateUser(User updatedUser) {
-        return userStorage.updateUser(updatedUser);
+        if (checkIsUserDataCorrect(updatedUser)) {
+            return userStorage.updateUser(updatedUser);
+        } else return null;
     }
 
     public void addFriend(int userId, int friendId) {
