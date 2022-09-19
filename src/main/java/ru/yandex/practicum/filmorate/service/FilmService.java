@@ -6,8 +6,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.storage.FilmStorage;
-import ru.yandex.practicum.filmorate.storage.UserStorage;
+import ru.yandex.practicum.filmorate.storage.FilmDbStorage;
 
 import java.time.*;
 import java.time.format.DateTimeFormatter;
@@ -15,53 +14,54 @@ import java.util.List;
 
 @Slf4j
 @Service
-public class FilmService {
-    private final FilmStorage filmStorage;
-    private final UserStorage userStorage;
+public class FilmService implements Services<Film> {
+    private final FilmDbStorage filmDbStorage;
     private final DateTimeFormatter dateTimeFormatter;
     private final static Instant MIN_RELEASE_DATA = Instant.from(ZonedDateTime.of(LocalDateTime.of(1895, 12,
             28, 0, 0), ZoneId.of("Europe/Moscow")));
 
     @Autowired
-    public FilmService(@Qualifier("filmDbStorage") FilmStorage filmStorage,
-                       @Qualifier("userDbStorage") UserStorage userStorage) {
-        this.filmStorage = filmStorage;
-        this.userStorage = userStorage;
+    public FilmService(@Qualifier("filmDbStorage") FilmDbStorage filmDbStorage) {
+        this.filmDbStorage = filmDbStorage;
         dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     }
 
-    public List<Film> getAllFilms() {
-        return filmStorage.getAllFilms();
+    @Override
+    public List<Film> getAll() {
+        return filmDbStorage.getAll();
     }
 
-    public Film getFilmById(int filmId) {
-        return filmStorage.getFilmById(filmId);
+    @Override
+    public Film getById(int filmId) {
+        return filmDbStorage.getById(filmId);
     }
 
-    public Film addFilm(Film newFilm) {
+    @Override
+    public Film add(Film newFilm) {
         if (checkIsFilmDataCorrect(newFilm)) {
-            return filmStorage.addFilm(newFilm);
+            return filmDbStorage.add(newFilm);
         }
         return null;
     }
 
-    public Film updateFilm(Film updatedFilm) {
+    @Override
+    public Film update(Film updatedFilm) {
         if (checkIsFilmDataCorrect(updatedFilm)) {
-            return filmStorage.updateFilm(updatedFilm);
+            return filmDbStorage.update(updatedFilm);
         }
         return null;
     }
 
     public void addLike(int filmId, int userId) {
-        filmStorage.addLike(filmId, userId);
+        filmDbStorage.addLike(filmId, userId);
     }
 
     public void deleteLike(int filmId, int userId) {
-        filmStorage.deleteLike(filmId, userId);
+        filmDbStorage.deleteLike(filmId, userId);
     }
 
     public List<Film> getPopularFilms(int count) {
-        return filmStorage.getPopularFilms(count);
+        return filmDbStorage.getPopularFilms(count);
     }
 
     public boolean checkIsFilmDataCorrect(Film newFilm) {

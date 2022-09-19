@@ -6,13 +6,12 @@ import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
 
-import javax.validation.Valid;
 import java.util.List;
 
 @Slf4j
 @RestController
 @RequestMapping("/users")
-public class UserController {
+public class UserController implements Controllers<User> {
     private final UserService userService;
 
     @Autowired
@@ -20,28 +19,32 @@ public class UserController {
         this.userService = userService;
     }
 
+    @Override
     @PostMapping
-    public User addUser(@Valid @RequestBody User newUser) {
+    public User add(@RequestBody User newUser) {
         log.info("Получен запрос на добавление нового пользователя");
-        return userService.addUser(newUser);
+        return userService.add(newUser);
     }
 
+    @Override
     @PutMapping
-    public User updateUser(@Valid @RequestBody User updatedUser) {
+    public User update(@RequestBody User updatedUser) {
         log.info("Получен запрос на обновление данных пользователя id={}", updatedUser.getId());
-        return userService.updateUser(updatedUser);
+        return userService.update(updatedUser);
     }
 
+    @Override
     @GetMapping("{id}")
-    public User getUserById(@PathVariable("id") int userId) {
+    public User getById(@PathVariable("id") int userId) {
         log.info("Получен запрос на получение пользователя id={}", userId);
-        return userService.getUserById(userId);
+        return userService.getById(userId);
     }
 
+    @Override
     @GetMapping
-    public List<User> getAllUsers() {
+    public List<User> getAll() {
         log.info("Получен запрос на получение списка пользователей");
-        return userService.getAllUsers();
+        return userService.getAll();
     }
 
     @PutMapping("{id}/friends/{friendId}")

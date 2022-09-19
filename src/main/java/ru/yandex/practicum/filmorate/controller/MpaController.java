@@ -2,32 +2,49 @@ package ru.yandex.practicum.filmorate.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Mpa;
-import ru.yandex.practicum.filmorate.service.MpaService;
+import ru.yandex.practicum.filmorate.service.Services;
 
 import java.util.List;
 
 @Slf4j
 @RestController
 @RequestMapping("/mpa")
-public class MpaController {
-    private final MpaService mpaService;
+public class MpaController implements Controllers<Mpa> {
+    private final Services<Mpa> services;
 
     @Autowired
-    public MpaController(MpaService mpaService) {
-        this.mpaService = mpaService;
+    public MpaController(@Qualifier("mpaService") Services<Mpa> services) {
+        this.services = services;
     }
 
+    @Override
     @GetMapping
-    public List<Mpa> getAllMpaRatings() {
+    public List<Mpa> getAll() {
         log.info("Получен запрос на получение списка рейтингов");
-        return mpaService.getAllMpaRatings();
+        return services.getAll();
     }
 
+    @Override
     @GetMapping("{id}")
-    public Mpa getMpaRatingById(@PathVariable("id") int ratingId) {
+    public Mpa getById(@PathVariable("id") int ratingId) {
         log.info("Получен запрос на получение названия рейтинга id={}", ratingId);
-        return mpaService.getMpaRatingById(ratingId);
+        return services.getById(ratingId);
+    }
+
+    @Override
+    @PostMapping
+    public Mpa add(@RequestBody Mpa newRating) {
+        log.info("Получен запрос на создание рейтинга name={}", newRating.getName());
+        return services.add(newRating);
+    }
+
+    @Override
+    @PutMapping
+    public Mpa update(@RequestBody Mpa updatedRating) {
+        log.info("Получен запрос на обновление рейтинга id={}", updatedRating.getId());
+        return services.update(updatedRating);
     }
 }

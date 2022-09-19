@@ -2,11 +2,10 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.UserStorage;
+import ru.yandex.practicum.filmorate.storage.UserDbStorage;
 
 import java.time.*;
 import java.time.format.DateTimeFormatter;
@@ -14,33 +13,33 @@ import java.util.List;
 
 @Slf4j
 @Service
-public class UserService {
-    private final UserStorage userStorage;
+public class UserService implements Services<User> {
+    private final UserDbStorage userStorage;
     private final DateTimeFormatter dateTimeFormatter;
 
     @Autowired
-    public UserService(@Qualifier("userDbStorage") UserStorage userStorage) {
+    public UserService(UserDbStorage userStorage) {
         this.userStorage = userStorage;
         dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     }
 
-    public List<User> getAllUsers() {
-        return userStorage.getAllUsers();
+    public List<User> getAll() {
+        return userStorage.getAll();
     }
 
-    public User getUserById(int userId) {
-        return userStorage.getUserById(userId);
+    public User getById(int userId) {
+        return userStorage.getById(userId);
     }
 
-    public User addUser(User newUser) {
+    public User add(User newUser) {
         if (checkIsUserDataCorrect(newUser)) {
-            return userStorage.addUser(newUser);
+            return userStorage.add(newUser);
         } else return null;
     }
 
-    public User updateUser(User updatedUser) {
+    public User update(User updatedUser) {
         if (checkIsUserDataCorrect(updatedUser)) {
-            return userStorage.updateUser(updatedUser);
+            return userStorage.update(updatedUser);
         } else return null;
     }
 

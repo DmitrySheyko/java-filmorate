@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.storage;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -8,25 +9,24 @@ import org.springframework.jdbc.support.KeyHolder;
 import ru.yandex.practicum.filmorate.exceptions.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
-import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.*;
 
-@Repository
-public class FilmDbStorage implements FilmStorage {
+@Repository("filmDbStorage")
+public class FilmDbStorage implements Storages<Film> {
     private final JdbcTemplate jdbcTemplate;
+    private final RowMapper<Film> filmMapper;
 
     @Autowired
-    public FilmDbStorage(JdbcTemplate jdbcTemplate) {
+    public FilmDbStorage(JdbcTemplate jdbcTemplate, RowMapper<Film> filmMapper) {
         this.jdbcTemplate = jdbcTemplate;
+        this.filmMapper = filmMapper;
     }
 
     @Override
-    public List<Film> getAllFilms() {
+    public List<Film> getAll() {
         String sqlQuery = " WITH result_film_Id_genre AS " +
                 "(SELECT fg.film_id, " +
                 "STRING_AGG (result_genre.id_concat_name, ',') AS genre_id_name " +
@@ -51,11 +51,11 @@ public class FilmDbStorage implements FilmStorage {
                 "LEFT JOIN result_film_Id_genre " +
                 "ON f.film_id = result_film_Id_genre.film_id " +
                 "ORDER BY f.film_id ";
-        return jdbcTemplate.query(sqlQuery, this::mapRowToFilm);
+        return jdbcTemplate.query(sqlQuery, filmMapper);
     }
 
     @Override
-    public Film addFilm(Film newFilm) {
+    public Film add(Film newFilm) {
         String sqlQuery = "INSERT INTO films (film_name, description, release_date, duration, rating ) " +
                 "VALUES (?, ?, ?, ?, ?)";
         KeyHolder keyHolder = new GeneratedKeyHolder();
@@ -79,8 +79,8 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public Film updateFilm(Film updatedFilm) {
-        if (checkIsFilmInStorage(updatedFilm)) {
+    public Film update(Film updatedFilm) {
+        if (checkIsObjectInStorage(updatedFilm)) {
             String sqlQuery = "UPDATE films SET " +
                     "film_name = ?, description = ?, release_date = ?, duration = ?, rating = ? " +
                     "WHERE film_id = ?";
@@ -109,13 +109,12 @@ public class FilmDbStorage implements FilmStorage {
         }
     }
 
-    @Override
     public void addLike(int filmId, int userId) {
         String sqlQuery = "INSERT INTO films_likes (film_id, user_id) VALUES (?, ?)";
         jdbcTemplate.update(sqlQuery, filmId, userId);
     }
 
-    @Override
+
     public void deleteLike(int filmId, int userid) {
         if (checkIsFilmHasLikeFromUser(filmId, userid)) {
             String sqlQuery = "DELETE FROM films_likes WHERE film_id = ? AND user_id = ?";
@@ -127,8 +126,8 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public Film getFilmById(int filmId) {
-        if (checkIsFilmInStorage(filmId)) {
+    public Film getById(int filmId) {
+        if (checkIsObjectInStorage(filmId)) {
             String sqlQuery = " WITH  result_film_Id_genre AS " +
                     "(SELECT fg.film_id, " +
                     "STRING_AGG (result_genre .id_concat_name , ',') AS  genre_id_name " +
@@ -153,41 +152,9 @@ public class FilmDbStorage implements FilmStorage {
                     "LEFT JOIN   result_film_Id_genre " +
                     "ON f.film_id = result_film_Id_genre.film_id " +
                     "WHERE f.film_id = ? ";
-            return jdbcTemplate.queryForObject(sqlQuery, this::mapRowToFilm, filmId);
+            return jdbcTemplate.queryForObject(sqlQuery, filmMapper, filmId);
         } else {
             throw new ObjectNotFoundException(String.format("Фильм id=%s не найден", filmId));
-        }
-    }
-
-    private Film mapRowToFilm(ResultSet resultSet, int rowNum) throws SQLException {
-        return Film.builder()
-                .id(resultSet.getInt("film_id"))
-                .name(resultSet.getString("film_name"))
-                .description(resultSet.getString("description"))
-                .releaseDate(resultSet.getString("release_date"))
-                .duration(resultSet.getInt("duration"))
-                .mpa(Mpa.builder()
-                        .id(resultSet.getInt("rating"))
-                        .name(resultSet.getString("rating_name"))
-                        .build())
-                .genres(createGenreListFromSting(resultSet.getString("genre_id_name")))
-                .build();
-    }
-
-    private List<Genre> createGenreListFromSting(String rowStringGenres) {
-        if (rowStringGenres != null) {
-            String[] genreIdAndName = rowStringGenres.split(",");
-            ArrayList<Genre> listOfGenres = new ArrayList<>(genreIdAndName.length);
-            for (String idAndName : genreIdAndName) {
-                String[] value = idAndName.split(":");
-                listOfGenres.add(Genre.builder()
-                        .id(Integer.parseInt(value[0]))
-                        .name(value[1])
-                        .build());
-            }
-            return listOfGenres;
-        } else {
-            return null;
         }
     }
 
@@ -237,15 +204,17 @@ public class FilmDbStorage implements FilmStorage {
                 "ORDER BY count(fl.user_id) DESC, " +
                 "film_full_info.film_id " +
                 "LIMIT ? ";
-        return jdbcTemplate.query(sqlQuery, this::mapRowToFilm, count);
+        return jdbcTemplate.query(sqlQuery, filmMapper, count);
     }
 
-    private boolean checkIsFilmInStorage(Film film) {
+    @Override
+    public boolean checkIsObjectInStorage(Film film) {
         String sqlQuery = "SELECT EXISTS (SELECT 1 FROM films WHERE film_id = ?)";
         return Boolean.TRUE.equals(jdbcTemplate.queryForObject(sqlQuery, Boolean.class, film.getId()));
     }
 
-    private boolean checkIsFilmInStorage(int filmId) {
+    @Override
+    public boolean checkIsObjectInStorage(int filmId) {
         String sqlQuery = "SELECT EXISTS (SELECT 1 FROM films WHERE film_id = ?)";
         return Boolean.TRUE.equals(jdbcTemplate.queryForObject(sqlQuery, Boolean.class, filmId));
     }

@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.storage;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -9,58 +10,50 @@ import ru.yandex.practicum.filmorate.exceptions.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.List;
+import java.util.Objects;
 
 @Repository
-public class UserDbStorage implements UserStorage {
+public class UserDbStorage implements Storages<User> {
     private final static Integer REQUEST_TO_FRIENDS_STATUS = 1;
     private final JdbcTemplate jdbcTemplate;
+    private final RowMapper<User> userMapper;
 
     @Autowired
-    public UserDbStorage(JdbcTemplate jdbcTemplate) {
+    public UserDbStorage(JdbcTemplate jdbcTemplate, RowMapper<User> userMapper) {
         this.jdbcTemplate = jdbcTemplate;
+        this.userMapper = userMapper;
     }
 
     @Override
-    public List<User> getAllUsers() {
+    public List<User> getAll() {
         String sqlQuery = "SELECT user_id, " +
                 "user_name, " +
-                "login, email, " +
+                "login, " +
+                "email, " +
                 "birth_day " +
                 "FROM users " +
                 "ORDER BY user_id";
-        return jdbcTemplate.query(sqlQuery, this::mapRowToUser);
+        return jdbcTemplate.query(sqlQuery, userMapper);
     }
 
     @Override
-    public User getUserById(int userId) {
-        if (checkIsUserInStorage(userId)) {
+    public User getById(int userId) {
+        if (checkIsObjectInStorage(userId)) {
             String sqlQuery = "SELECT user_id, " +
                     "user_name, " +
                     "login, email, " +
                     "birth_day " +
                     "FROM users " +
                     "WHERE user_id = ?";
-            return jdbcTemplate.queryForObject(sqlQuery, this::mapRowToUser, userId);
+            return jdbcTemplate.queryForObject(sqlQuery, userMapper, userId);
         } else {
             throw new ObjectNotFoundException(String.format("Пользователь id=%s не найден.", userId));
         }
     }
 
-    private User mapRowToUser(ResultSet resultSet, int rowNum) throws SQLException {
-        return User.builder()
-                .id(resultSet.getInt("user_id"))
-                .name(resultSet.getString("user_name"))
-                .login(resultSet.getString("login"))
-                .email(resultSet.getString("email"))
-                .birthday(resultSet.getString("birth_day"))
-                .build();
-    }
-
     @Override
-    public User addUser(User newUser) {
+    public User add(User newUser) {
         String sqlQuery = "INSERT INTO users (user_name, login, email, birth_day) " +
                 "VALUES (?, ?, ?, ?)";
         KeyHolder keyHolder = new GeneratedKeyHolder();
@@ -72,27 +65,26 @@ public class UserDbStorage implements UserStorage {
             stmt.setString(4, newUser.getBirthday());
             return stmt;
         }, keyHolder);
-        newUser.setId(keyHolder.getKey().intValue());
+        newUser.setId(Objects.requireNonNull(keyHolder.getKey()).intValue());
         return newUser;
     }
 
     public void addFriend(int userId, int friendId) {
-        if (checkIsUserInStorage(userId)) {
-            if (checkIsUserInStorage(friendId)) {
-                String sqlQuery = "INSERT INTO users_friends (user_id, friend_id, status) " +
-                        "VALUES (?, ?, ?)";
-                jdbcTemplate.update(sqlQuery, userId, friendId, REQUEST_TO_FRIENDS_STATUS);
-            } else {
-                throw new ObjectNotFoundException(String.format("Пользователь id=%s не найден.", friendId));
-            }
+        boolean isUserExist = checkIsObjectInStorage(userId);
+        boolean isFriendExist = checkIsObjectInStorage(friendId);
+        if (isUserExist && isFriendExist) {
+            String sqlQuery = "INSERT INTO users_friends (user_id, friend_id, status) " +
+                    "VALUES (?, ?, ?)";
+            jdbcTemplate.update(sqlQuery, userId, friendId, REQUEST_TO_FRIENDS_STATUS);
         } else {
-            throw new ObjectNotFoundException(String.format("Пользователь id=%s не найден.", userId));
+            throw new ObjectNotFoundException(String.format("Пользователь id=%s не найден.",
+                    isUserExist ? friendId : userId));
         }
     }
 
     @Override
-    public User updateUser(User updatedUser) {
-        if (checkIsUserInStorage(updatedUser)) {
+    public User update(User updatedUser) {
+        if (checkIsObjectInStorage(updatedUser)) {
             String sqlQuery = "UPDATE users " +
                     "SET user_name = ?, login = ?, email = ?, birth_day = ? " +
                     "WHERE user_id = ?";
@@ -108,16 +100,14 @@ public class UserDbStorage implements UserStorage {
         }
     }
 
-    @Override
     public void deleteFriend(int userId, int friendId) {
         String sqlQuery = "DELETE FROM users_friends " +
                 "WHERE user_id = ? AND friend_id = ?";
         jdbcTemplate.update(sqlQuery, userId, friendId);
     }
 
-    @Override
     public List<User> getListOfFriends(int userId) {
-        if (checkIsUserInStorage(userId)) {
+        if (checkIsObjectInStorage(userId)) {
             String sqlQuery = "SELECT u.user_id, " +
                     "u.user_name, " +
                     "u.login, " +
@@ -127,7 +117,7 @@ public class UserDbStorage implements UserStorage {
                     "ON uf.friend_id = u.user_id " +
                     "WHERE uf.user_id = ?" +
                     "ORDER BY u.user_id";
-            return jdbcTemplate.query(sqlQuery, this::mapRowToUser, userId);
+            return jdbcTemplate.query(sqlQuery, userMapper, userId);
         } else {
             throw new ObjectNotFoundException(String.format("Пользователь id=%s не найден.", userId));
         }
@@ -150,15 +140,17 @@ public class UserDbStorage implements UserStorage {
                 "AND f1.friend_id <> f2.user_id " +
                 "AND f2.friend_id <> f1.user_id " +
                 "WHERE f1.user_id = ? AND f2.user_id = ?";
-        return jdbcTemplate.query(sqlQuery, this::mapRowToUser, userId, friendId);
+        return jdbcTemplate.query(sqlQuery, userMapper, userId, friendId);
     }
 
-    public boolean checkIsUserInStorage(User user) {
+    @Override
+    public boolean checkIsObjectInStorage(User user) {
         String sqlQuery = "SELECT EXISTS (SELECT 1 FROM users WHERE user_id = ?)";
         return Boolean.TRUE.equals(jdbcTemplate.queryForObject(sqlQuery, Boolean.class, user.getId()));
     }
 
-    public boolean checkIsUserInStorage(int user) {
+    @Override
+    public boolean checkIsObjectInStorage(int user) {
         String sqlQuery = "SELECT EXISTS (SELECT 1 FROM users WHERE user_id = ?)";
         return Boolean.TRUE.equals(jdbcTemplate.queryForObject(sqlQuery, Boolean.class, user));
     }
