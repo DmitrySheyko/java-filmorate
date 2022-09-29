@@ -2,105 +2,66 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.exceptions.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.storage.FilmStorage;
-import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
-import ru.yandex.practicum.filmorate.storage.UserStorage;
+import ru.yandex.practicum.filmorate.storage.FilmDbStorage;
 
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
-public class FilmService {
-    public final FilmStorage filmStorage;
-    public final UserStorage userStorage;
+public class FilmService implements Services<Film> {
+    private final FilmDbStorage filmDbStorage;
     private final DateTimeFormatter dateTimeFormatter;
     private final static Instant MIN_RELEASE_DATA = Instant.from(ZonedDateTime.of(LocalDateTime.of(1895, 12,
             28, 0, 0), ZoneId.of("Europe/Moscow")));
 
-
     @Autowired
-    public FilmService(FilmStorage filmStorage, InMemoryUserStorage userStorage) {
-        this.filmStorage = filmStorage;
-        this.userStorage = userStorage;
+    public FilmService(@Qualifier("filmDbStorage") FilmDbStorage filmDbStorage) {
+        this.filmDbStorage = filmDbStorage;
         dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     }
 
-    public List<Film> getAllFilms() {
-        return filmStorage.getAllFilms();
+    @Override
+    public List<Film> getAll() {
+        return filmDbStorage.getAll();
     }
 
-    public Film getFilmById(int filmId) {
-        if (filmStorage.checkIsFilmInStorage(filmId)) {
-            return filmStorage.getFilmById(filmId);
-        } else {
-            log.info("Фильм id={} не найден", filmId);
-            throw new ObjectNotFoundException(String.format("Фильм id=%s не найден", filmId));
-        }
+    @Override
+    public Film getById(int filmId) {
+        return filmDbStorage.getById(filmId);
     }
 
-    public Film addFilm(Film newFilm) {
+    @Override
+    public Film add(Film newFilm) {
         if (checkIsFilmDataCorrect(newFilm)) {
-            return filmStorage.addFilm(newFilm);
-        } else {
-            return null;
+            return filmDbStorage.add(newFilm);
         }
+        return null;
     }
 
-    public Film updateFilm(Film updatedFilm) {
-        if (filmStorage.checkIsFilmInStorage(updatedFilm)) {
-            if (checkIsFilmDataCorrect(updatedFilm)) {
-                return filmStorage.updateFilm(updatedFilm);
-            } else {
-                return null;
-            }
-        } else {
-            log.info("Фильм id={} не найден", updatedFilm);
-            throw new ObjectNotFoundException(String.format("Не удалось обновить данные о фильме id=%s т.к. фильм  не найден", updatedFilm.getId()));
+    @Override
+    public Film update(Film updatedFilm) {
+        if (checkIsFilmDataCorrect(updatedFilm)) {
+            return filmDbStorage.update(updatedFilm);
         }
+        return null;
     }
 
     public void addLike(int filmId, int userId) {
-        if (!filmStorage.checkIsFilmInStorage(filmId)) {
-            log.info("Фильм id={} не найден", filmId);
-            throw new ObjectNotFoundException(String.format("Фильм id=%s не найден", userId));
-        }
-        if (!userStorage.checkIsUserInStorage(userId)) {
-            log.info("Пользователь id={} не найден", userId);
-            throw new ObjectNotFoundException(String.format("Пользователь id=%s не найден", userId));
-        }
-        filmStorage.addLike(filmId, userId);
+        filmDbStorage.addLike(filmId, userId);
     }
 
     public void deleteLike(int filmId, int userId) {
-        if (!filmStorage.checkIsFilmInStorage(filmId)) {
-            log.info("Фильм id={} не найден", filmId);
-            throw new ObjectNotFoundException(String.format("Фильм id=%s не найден", userId));
-        }
-        if (!userStorage.checkIsUserInStorage(userId)) {
-            log.info("Пользователь id={} не найден", userId);
-            throw new ObjectNotFoundException(String.format("Пользователь id=%s не найден", userId));
-        }
-        if (!filmStorage.checkIsFilmHasLikeFromUser(filmId, userId)) {
-            log.info("Для фильма id={} лайк от пользователя id={} не найден", filmId, userId);
-            throw new ValidationException(String.format("Для фильма id=%s лайк от пользователя id=%s не найден",
-                    filmId, userId));
-        }
-        filmStorage.deleteLike(filmId, userId);
+        filmDbStorage.deleteLike(filmId, userId);
     }
 
     public List<Film> getPopularFilms(int count) {
-        log.info("Направлен список из {} фильмов с наибольшим количеством лайков", count);
-        return filmStorage.getAllFilms().stream()
-                .sorted((f1, f2) -> (f1.getSetOfLikes().size() - f2.getSetOfLikes().size()) * (-1))
-                .limit(count)
-                .collect(Collectors.toList());
+        return filmDbStorage.getPopularFilms(count);
     }
 
     public boolean checkIsFilmDataCorrect(Film newFilm) {

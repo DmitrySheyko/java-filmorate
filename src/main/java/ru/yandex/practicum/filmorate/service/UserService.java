@@ -3,115 +3,60 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.exceptions.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
-import ru.yandex.practicum.filmorate.storage.UserStorage;
+import ru.yandex.practicum.filmorate.storage.UserDbStorage;
 
 import java.time.*;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
 @Service
-public class UserService {
-    private final UserStorage userStorage;
+public class UserService implements Services<User> {
+    private final UserDbStorage userStorage;
     private final DateTimeFormatter dateTimeFormatter;
 
     @Autowired
-    public UserService(InMemoryUserStorage userStorage) {
+    public UserService(UserDbStorage userStorage) {
         this.userStorage = userStorage;
         dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     }
 
-    public List<User> getAllUsers() {
-        return userStorage.getAllUsers();
+    public List<User> getAll() {
+        return userStorage.getAll();
     }
 
-    public User getUserById(int userId) {
-        if (userStorage.checkIsUserInStorage(userId)) {
-            return userStorage.getUserById(userId);
-        } else {
-            log.info("Пользователь id={} не найден", userId);
-            throw new ObjectNotFoundException(String.format("Пользователь id=%s не найден", userId));
-        }
+    public User getById(int userId) {
+        return userStorage.getById(userId);
     }
 
-    public User addUser(User newUser) {
+    public User add(User newUser) {
         if (checkIsUserDataCorrect(newUser)) {
-            return userStorage.addUser(newUser);
+            return userStorage.add(newUser);
         } else return null;
     }
 
-    public User updateUser(User updatedUser) {
-        if (userStorage.checkIsUserInStorage(updatedUser)) {
-            if (checkIsUserDataCorrect(updatedUser)) {
-                return userStorage.updateUser(updatedUser);
-            } else return null;
-        } else {
-            log.info("Пользователь id={} не найден", updatedUser.getId());
-            throw new ObjectNotFoundException(String.format("Не удалось обновить данные пользователя id=%s т.к. " +
-                    "пользователь не найден", updatedUser.getId()));
-        }
+    public User update(User updatedUser) {
+        if (checkIsUserDataCorrect(updatedUser)) {
+            return userStorage.update(updatedUser);
+        } else return null;
     }
 
     public void addFriend(int userId, int friendId) {
-        if (!userStorage.checkIsUserInStorage(userId)) {
-            log.info("Пользователь id={} не найден", userId);
-            throw new ObjectNotFoundException(String.format("Пользователь id=%s не найден", userId));
-        }
-        if (!userStorage.checkIsUserInStorage(friendId)) {
-            log.info("Пользователь id={} не найден", friendId);
-            throw new ObjectNotFoundException(String.format("Пользователь id=%s не найден", friendId));
-        }
         userStorage.addFriend(userId, friendId);
     }
 
     public void deleteFriend(int userId, int friendId) {
-        if (!userStorage.checkIsUserInStorage(userId)) {
-            log.info("Пользователь id={} не найден", userId);
-            throw new ObjectNotFoundException(String.format("Пользователь id=%s не найден", userId));
-        }
-        if (!userStorage.checkIsUserInStorage(friendId)) {
-            log.info("Пользователь id={} не найден", friendId);
-            throw new ObjectNotFoundException(String.format("Пользователь id=%s не найден", friendId));
-        }
-        if (!userStorage.checkAreTheseUsersFriends(userId, friendId)) {
-            log.info("Пользователь id={} не в списке друзей пользователя id={}", friendId, userId);
-            throw new ObjectNotFoundException(String.format("Пользователь id=%s не в списке друзей пользователя id=%s",
-                    friendId, userId));
-        }
-        if (!userStorage.checkAreTheseUsersFriends(friendId, userId)) {
-            log.info("Пользователь id={} не в списке друзей пользователя id={}", userId, friendId);
-            throw new ObjectNotFoundException(String.format("Пользователь id=%s не в списке друзей пользователя id=%s",
-                    userId, friendId));
-        }
         userStorage.deleteFriend(userId, friendId);
     }
 
     public List<User> getListOfFriends(int userId) {
-        if (!userStorage.checkIsUserInStorage(userId)) {
-            log.info("Пользователь id={} не найден", userId);
-            throw new ObjectNotFoundException(String.format("Пользователь id=%s не найден", userId));
-        }
         return userStorage.getListOfFriends(userId);
     }
 
     public List<User> getListOfCommonFriends(int userId, int friendId) {
-        if (!userStorage.checkIsUserInStorage(userId)) {
-            log.info("Пользователь id={} не найден", userId);
-            throw new ObjectNotFoundException(String.format("Пользователь id=%s не найден", userId));
-        }
-        if (!userStorage.checkIsUserInStorage(friendId)) {
-            log.info("Пользователь id={} не найден", friendId);
-            throw new ObjectNotFoundException(String.format("Пользователь id=%s не найден", friendId));
-        }
-        ArrayList<User> resultList = new ArrayList<>(userStorage.getListOfFriends(userId));
-        resultList.retainAll(userStorage.getListOfFriends(friendId));
-        log.info("Направлен общий список друзей пользователей id={} и id={}", userId, friendId);
-        return resultList;
+        return userStorage.getListOfCommonFriends(userId, friendId);
     }
 
     public boolean checkIsUserDataCorrect(User newUser) {
