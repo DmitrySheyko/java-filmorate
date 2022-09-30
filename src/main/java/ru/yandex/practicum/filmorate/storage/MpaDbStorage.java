@@ -1,6 +1,6 @@
 package ru.yandex.practicum.filmorate.storage;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
@@ -14,15 +14,10 @@ import java.util.List;
 import java.util.Objects;
 
 @Repository
+@AllArgsConstructor
 public class MpaDbStorage implements Storages<Mpa> {
     private final JdbcTemplate jdbcTemplate;
     private final RowMapper<Mpa> mpaMapper;
-
-    @Autowired
-    public MpaDbStorage(JdbcTemplate jdbcTemplate, RowMapper<Mpa> mpaMapper) {
-        this.jdbcTemplate = jdbcTemplate;
-        this.mpaMapper = mpaMapper;
-    }
 
     @Override
     public List<Mpa> getAll() {

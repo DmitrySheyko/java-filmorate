@@ -1,6 +1,6 @@
 package ru.yandex.practicum.filmorate.storage;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -14,15 +14,10 @@ import java.util.List;
 import java.util.Objects;
 
 @Repository
+@AllArgsConstructor
 public class GenreDbStorage implements Storages<Genre> {
     private final JdbcTemplate jdbcTemplate;
     private final RowMapper<Genre> genreMapper;
-
-    @Autowired
-    public GenreDbStorage(JdbcTemplate jdbcTemplate, RowMapper<Genre> genreMapper) {
-        this.jdbcTemplate = jdbcTemplate;
-        this.genreMapper = genreMapper;
-    }
 
     @Override
     public List<Genre> getAll() {
