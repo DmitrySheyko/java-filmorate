@@ -1,6 +1,6 @@
 package ru.yandex.practicum.filmorate.storage;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -14,15 +14,10 @@ import java.util.List;
 import java.util.Objects;
 
 @Repository
+@AllArgsConstructor
 public class UserDbStorage implements Storages<User> {
     private final JdbcTemplate jdbcTemplate;
     private final RowMapper<User> userMapper;
-
-    @Autowired
-    public UserDbStorage(JdbcTemplate jdbcTemplate, RowMapper<User> userMapper) {
-        this.jdbcTemplate = jdbcTemplate;
-        this.userMapper = userMapper;
-    }
 
     @Override
     public List<User> getAll() {
@@ -123,7 +118,11 @@ public class UserDbStorage implements Storages<User> {
     }
 
     public List<User> getListOfCommonFriends(int userId, int friendId) {
-        String sqlQuery = "SELECT u.user_id, u.user_name, u.email, u.login, u.birth_day " +
+        String sqlQuery = "SELECT u.user_id, " +
+                "u.user_name, " +
+                "u.email, " +
+                "u.login, " +
+                "u.birth_day " +
                 "FROM users_friends AS uf " +
                 "LEFT JOIN users AS u ON uf.friend_id = u.user_id " +
                 "WHERE uf.user_id = ? " +

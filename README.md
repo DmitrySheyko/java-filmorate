@@ -138,20 +138,12 @@ __ORDER BY__ u.user_id;
 
 
 ### Получение списка общих друзей пользователей id1 и id2 (эндпоинт возвращает List< User >) ###
-__WITH__ friends __AS__  
-(__SELECT__ user_id,  
-friend_id  
-__FROM__ users_friends __AS__ uf  
-__WHERE__ uf.status __IS NOT NULL__ )  
 __SELECT__ u.user_id,  
 u.user_name,  
 u.email,  
 u.login,  
 u.birth_day  
-__FROM__ users u __JOIN__ friends f1  
-__ON__ u.user_id = f1.friend_id  
-__JOIN friends__ f2 " +
-__ON__ f1.friend_id = f2.friend_id  
-__AND__ f1.friend_id <> f2.user_id  
-__AND__ f2.friend_id <> f1.user_id  
-__WHERE__ f1.user_id = ? __AND__ f2.user_id = ?";
+__FROM__ users_friends __AS__ uf  
+__LEFT JOIN__ users __AS__ u __ON__ uf.friend_id = u.user_id  
+__WHERE__ uf.user_id =  
+__AND__ uf.friend_id __IN__ (__SELECT__ friend_id __FROM__ users_friends __WHERE__ user_id = ?);

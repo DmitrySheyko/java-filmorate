@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -12,13 +13,9 @@ import java.util.List;
 @Slf4j
 @RestController
 @RequestMapping("/mpa")
+@AllArgsConstructor
 public class MpaController implements Controllers<Mpa> {
     private final Services<Mpa> services;
-
-    @Autowired
-    public MpaController(@Qualifier("mpaService") Services<Mpa> services) {
-        this.services = services;
-    }
 
     @Override
     @GetMapping

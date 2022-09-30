@@ -1,6 +1,6 @@
 package ru.yandex.practicum.filmorate.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.storage.Storages;
@@ -8,13 +8,9 @@ import ru.yandex.practicum.filmorate.storage.Storages;
 import java.util.List;
 
 @Service
+@AllArgsConstructor
 public class MpaService implements Services<Mpa> {
     private final Storages<Mpa> storages;
-
-    @Autowired
-    public MpaService(Storages<Mpa> storages) {
-        this.storages = storages;
-    }
 
     public List<Mpa> getAll() {
         return storages.getAll();
