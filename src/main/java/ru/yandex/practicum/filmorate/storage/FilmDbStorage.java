@@ -1,6 +1,6 @@
 package ru.yandex.practicum.filmorate.storage;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -15,15 +15,10 @@ import java.sql.PreparedStatement;
 import java.util.*;
 
 @Repository("filmDbStorage")
+@AllArgsConstructor
 public class FilmDbStorage implements Storages<Film> {
     private final JdbcTemplate jdbcTemplate;
     private final RowMapper<Film> filmMapper;
-
-    @Autowired
-    public FilmDbStorage(JdbcTemplate jdbcTemplate, RowMapper<Film> filmMapper) {
-        this.jdbcTemplate = jdbcTemplate;
-        this.filmMapper = filmMapper;
-    }
 
     @Override
     public List<Film> getAll() {
