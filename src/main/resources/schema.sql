@@ -47,8 +47,8 @@ CREATE TABLE IF NOT EXISTS users_friends
         CONSTRAINT user_friends_user_id_FK REFERENCES users (user_id) ON DELETE CASCADE,
     friend_id INTEGER
         CONSTRAINT user_friends_friend_id_FK REFERENCES users (user_id) ON DELETE CASCADE,
-    status    INTEGER
-        CONSTRAINT user_friends_status_check CHECK (status IN (0, 1)),
+--     status    INTEGER
+--         CONSTRAINT user_friends_status_check CHECK (status IN (0, 1)),
     CONSTRAINT users_friends_user_id_friend_id_unique UNIQUE (user_id, friend_id)
 );
 
