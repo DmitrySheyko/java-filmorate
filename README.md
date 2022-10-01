@@ -147,3 +147,4 @@ __FROM__ users_friends __AS__ uf
 __LEFT JOIN__ users __AS__ u __ON__ uf.friend_id = u.user_id  
 __WHERE__ uf.user_id =  
 __AND__ uf.friend_id __IN__ (__SELECT__ friend_id __FROM__ users_friends __WHERE__ user_id = ?);
+test3
