@@ -7,9 +7,11 @@ import lombok.Data;
 @Data
 @Builder
 public class Review {
+
     private int id;
     private Integer userId;
     private Integer filmId;
     private Boolean isPositive;
     private String description;
+
 }
