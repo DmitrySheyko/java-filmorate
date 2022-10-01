@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
+import org.springframework.jdbc.core.PreparedStatementCallback;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exceptions.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
@@ -64,6 +65,16 @@ public class ReviewService implements Services<Review>{
     @Override
     public Review add(Review newReview) {
         try {//может возникнуть ошибка в случае добавления отзыва с нарушением уникальности пары film_id <-> user_id
+            if(!reviewDbStorage.checkIsUserInStorage(newReview.getUserId())){
+                String message = "Пользователь user_id="+newReview.getUserId()+" отсутствует в базе данных.";
+                log.error(message);
+                throw new ObjectNotFoundException(message);
+            }
+            if(!reviewDbStorage.checkIsObjectInStorage(newReview.getFilmId())){
+                String message = "Фильм film_id="+newReview.getFilmId()+" отсутствует в базе данных.";
+                log.error(message);
+                throw new ObjectNotFoundException(message);
+            }
             reviewDbStorage.add(newReview);
             log.info("Отзыв review_id="+newReview.getId()+" успешно добавлен.");
             return newReview;
