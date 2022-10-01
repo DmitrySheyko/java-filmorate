@@ -16,5 +16,4 @@ public class Film {
     private Mpa mpa;
     private List<Genre> genres;
     private Integer rate;
-    private List<Review> reviews;
 }

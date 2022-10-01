@@ -3,7 +3,6 @@ package ru.yandex.practicum.filmorate.model;
 import lombok.Builder;
 import lombok.Data;
 
-
 @Data
 @Builder
 public class Review {
@@ -11,7 +10,7 @@ public class Review {
     private Integer userId;
     private Integer filmId;
     private Boolean isPositive;
-    private Boolean is;
-    private String description;
+    private String content;
+    @Builder.Default
+    private Integer useful = 0;
 }
-
