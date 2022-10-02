@@ -6,7 +6,9 @@ import org.springframework.stereotype.Repository;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
+import org.springframework.util.CollectionUtils;
 import ru.yandex.practicum.filmorate.exceptions.ObjectNotFoundException;
+import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.User;
@@ -51,7 +53,7 @@ public class FilmDbStorage implements Storages<Film> {
 
     @Override
     public Film add(Film newFilm) {
-        String sqlQuery = "INSERT INTO films (film_name, description, release_date, duration, rating ) " +
+        String sqlQuery = "INSERT INTO films (film_name, description, release_date, duration, rating) " +
                 "VALUES (?, ?, ?, ?, ?)";
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(connection -> {
@@ -70,6 +72,7 @@ public class FilmDbStorage implements Storages<Film> {
                 jdbcTemplate.update(sqlQueryForGenres, newFilm.getId(), genre.getId());
             }
         }
+        updateDirectorsOfFilm(newFilm);
         return newFilm;
     }
 
@@ -98,9 +101,21 @@ public class FilmDbStorage implements Storages<Film> {
                     jdbcTemplate.update(sqlQueryForAddGenres, updatedFilm.getId(), genre.getId());
                 }
             }
+            updateDirectorsOfFilm(updatedFilm);
             return updatedFilm;
         } else {
             throw new ObjectNotFoundException(String.format("Фильм id=%s не найден.", updatedFilm.getId()));
+        }
+    }
+
+    private void updateDirectorsOfFilm(Film film) {
+        String sqlQueryForDeleteOldGenres = "delete from films_directors where film_id = ?";
+        jdbcTemplate.update(sqlQueryForDeleteOldGenres, film.getId());
+        if (!CollectionUtils.isEmpty(film.getDirectors())) {
+            for (Director director : film.getDirectors()) {
+                String sqlQueryForAddGenres = "insert into films_directors (film_id, director_id) values(?, ?)";
+                jdbcTemplate.update(sqlQueryForAddGenres, film.getId(), director.getId());
+            }
         }
     }
 

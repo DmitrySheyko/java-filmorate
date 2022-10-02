@@ -27,7 +27,16 @@ CREATE TABLE IF NOT EXISTS films
     rating       INTEGER
         CONSTRAINT film_rating_FK REFERENCES ratings (rating_id),
     director     INTEGER
-        CONSTRAINT film_director_FK REFERENCES directors (director_id)
+
+);
+
+CREATE TABLE IF NOT EXISTS films_directors
+(
+    film_id  INTEGER
+        CONSTRAINT film_director_film_id_FK REFERENCES films (film_id),
+    director_id INTEGER
+        CONSTRAINT film_director_director_id_FK REFERENCES directors (director_id),
+    CONSTRAINT films_directors_film_id_director_id_unique UNIQUE (film_id, director_id)
 );
 
 CREATE TABLE IF NOT EXISTS films_genres

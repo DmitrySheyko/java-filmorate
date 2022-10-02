@@ -10,8 +10,10 @@ import ru.yandex.practicum.filmorate.exceptions.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.model.Director;
 
 import java.sql.PreparedStatement;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 @Repository
 @AllArgsConstructor
@@ -63,6 +65,14 @@ public class DirectorDbStorage implements Storages<Director> {
         }
     }
 
+    public Set<Director> getDirectorsByFilmId(int filmId) {
+        String directorRows = "SELECT * FROM directors " +
+                "INNER JOIN films_directors FD " +
+                "ON directors.director_id = FD.director_id " +
+                "WHERE FD.film_id  = ? ";
+        return new HashSet<>(jdbcTemplate.query(directorRows, directorMapper, filmId));
+    }
+
     @Override
     public boolean checkIsObjectInStorage(Director director) {
         String sqlQuery = "SELECT EXISTS (SELECT 1 FROM directors WHERE director_id = ?)";
@@ -74,4 +84,5 @@ public class DirectorDbStorage implements Storages<Director> {
         String sqlQuery = "SELECT EXISTS (SELECT 1 FROM directors WHERE director_id = ?)";
         return Boolean.TRUE.equals(jdbcTemplate.queryForObject(sqlQuery, Boolean.class, directorId));
     }
+
 }
