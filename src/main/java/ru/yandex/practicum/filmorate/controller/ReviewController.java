@@ -14,13 +14,13 @@ import java.util.List;
 @RequestMapping("/reviews")
 @AllArgsConstructor
 @Validated
-public class ReviewController{
+public class ReviewController {
 
     private final ReviewService reviewService;
 
     @GetMapping
     public List<Review> getAllById(@RequestParam(required = false) Integer filmId, @RequestParam(defaultValue = "10") int count) {
-        if (filmId==null){
+        if (filmId == null) {
             return reviewService.getAll();
         }
         return reviewService.getAllById(filmId, count);
@@ -65,4 +65,5 @@ public class ReviewController{
     public String removeDislikeLikeById(@PathVariable Integer id, @PathVariable Integer userId) {
         return reviewService.removeDislikeById(id, userId);
     }
+
 }
