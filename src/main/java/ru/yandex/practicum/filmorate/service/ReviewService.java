@@ -3,7 +3,6 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
-import org.springframework.jdbc.core.PreparedStatementCallback;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exceptions.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
@@ -76,7 +75,7 @@ public class ReviewService implements Services<Review>{
                 throw new ObjectNotFoundException(message);
             }
             reviewDbStorage.add(newReview);
-            log.info("Отзыв review_id="+newReview.getId()+" успешно добавлен.");
+            log.info("Отзыв review_id="+newReview.getReviewId()+" успешно добавлен.");
             return newReview;
         } catch (IncorrectResultSizeDataAccessException e){
             String message = "Отзыв пользователем user_id="+newReview.getUserId()+" фильму film_id="
@@ -90,7 +89,7 @@ public class ReviewService implements Services<Review>{
     public Review update(Review reviewForUpdate) {
         try {
             reviewDbStorage.update(reviewForUpdate);
-            log.info("Отзыв review_id="+reviewForUpdate.getId()+" успешно обновлен.");
+            log.info("Отзыв review_id="+reviewForUpdate.getReviewId()+" успешно обновлен.");
             return reviewForUpdate;
         } catch (IncorrectResultSizeDataAccessException e){
             String message = "Отзыв review_id="+reviewForUpdate.getFilmId()+" отсутствует в базе данных.";

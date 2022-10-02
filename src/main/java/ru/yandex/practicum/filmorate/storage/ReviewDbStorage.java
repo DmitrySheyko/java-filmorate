@@ -26,7 +26,7 @@ public class ReviewDbStorage implements Storages<Review> {
                 "r.user_id," +
                 "r.content," +
                 "r.is_positive," +
-                "sum(rl.is_positive) AS useful " +
+                "sum((COALESCE(rl.is_positive,0))) AS useful " +
                 "FROM reviews AS r " +
                 "LEFT JOIN reviews_likes AS rl ON rl.review_id = r.review_id " +
                 "GROUP BY r.review_id " +
@@ -40,7 +40,7 @@ public class ReviewDbStorage implements Storages<Review> {
                 "r.user_id," +
                 "r.content," +
                 "r.is_positive," +
-                "sum(rl.is_positive) AS useful " +
+                "sum((COALESCE(rl.is_positive,0))) AS useful " +
                 "FROM reviews AS r " +
                 "LEFT JOIN reviews_likes AS rl ON rl.review_id = r.review_id " +
                 "WHERE r.film_id=? " +
@@ -58,7 +58,7 @@ public class ReviewDbStorage implements Storages<Review> {
                 "r.user_id," +
                 "r.content," +
                 "r.is_positive," +
-                "sum(rl.is_positive) AS useful " +
+                "sum((COALESCE(rl.is_positive,0))) AS useful " +
                 "FROM reviews AS r " +
                 "LEFT JOIN reviews_likes AS rl ON rl.review_id = r.review_id " +
                 "WHERE r.review_id=?" +
@@ -78,7 +78,7 @@ public class ReviewDbStorage implements Storages<Review> {
             stmt.setBoolean(4, newReview.getIsPositive());
             return stmt;
         }, keyHolder);
-        newReview.setId(Objects.requireNonNull(keyHolder.getKey()).intValue());
+        newReview.setReviewId(Objects.requireNonNull(keyHolder.getKey()).intValue());
         newReview.setUseful(0);
         return newReview;
     }
@@ -88,12 +88,12 @@ public class ReviewDbStorage implements Storages<Review> {
         //обновить user_id и film_id у отзыва нельзя, в случае попытки - не уверен,нужно ли выбрасывать исключение.
         String sqlQuery = "UPDATE reviews SET content=?,is_positive=? WHERE review_id=?;";
         jdbcTemplate.update(sqlQuery, reviewForUpdate.getContent(),
-                reviewForUpdate.getIsPositive(), reviewForUpdate.getId());
+                reviewForUpdate.getIsPositive(), reviewForUpdate.getReviewId());
         return reviewForUpdate;
     }
 
     public String removeById(Integer reviewId) {
-        String sqlQuery = "DELETE FROM review WHERE review_id=?";
+        String sqlQuery = "DELETE FROM reviews WHERE review_id=?";
         jdbcTemplate.update(sqlQuery, reviewId);
         return "Отзыв review_id=" + reviewId + " был успешно удалён.";
     }
@@ -131,7 +131,7 @@ public class ReviewDbStorage implements Storages<Review> {
     @Override
     public boolean checkIsObjectInStorage(Review review) {
         String sqlQuery = "SELECT EXISTS (SELECT 1 FROM review WHERE review_id = ?)";
-        return Boolean.TRUE.equals(jdbcTemplate.queryForObject(sqlQuery, Boolean.class, review.getId()));
+        return Boolean.TRUE.equals(jdbcTemplate.queryForObject(sqlQuery, Boolean.class, review.getReviewId()));
     }
 
     public boolean checkIsReviewLikedByUser(int reviewIn, int userId) {
