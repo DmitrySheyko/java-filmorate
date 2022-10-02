@@ -73,6 +73,11 @@ public class DirectorDbStorage implements Storages<Director> {
         return new HashSet<>(jdbcTemplate.query(directorRows, directorMapper, filmId));
     }
 
+    public void deleteDirector(int directorId) {
+        String deleteSql = "DELETE FROM directors WHERE director_id = ?";
+        jdbcTemplate.update(deleteSql, directorId);
+    }
+
     @Override
     public boolean checkIsObjectInStorage(Director director) {
         String sqlQuery = "SELECT EXISTS (SELECT 1 FROM directors WHERE director_id = ?)";

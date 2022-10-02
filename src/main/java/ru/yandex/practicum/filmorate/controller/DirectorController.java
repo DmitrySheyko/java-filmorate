@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Director;
-import ru.yandex.practicum.filmorate.service.Services;
+import ru.yandex.practicum.filmorate.service.DirectorService;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -15,7 +15,7 @@ import java.util.List;
 @AllArgsConstructor
 public class DirectorController implements Controllers<Director> {
 
-    private final Services<Director> services;
+    private final DirectorService services;
 
     @Override
     @GetMapping
@@ -43,5 +43,11 @@ public class DirectorController implements Controllers<Director> {
     public Director update(@Valid @RequestBody Director updatedDirector) {
         log.info("Получен запрос на обновление данных режиссера id={}", updatedDirector.getId());
         return services.update(updatedDirector);
+    }
+
+    @DeleteMapping("{id}")
+    public void deleteDirector(@PathVariable("id") int directorId) {
+        log.info("Получен запрос на удаление режиссера с id={}", directorId);
+        services.deleteDirector(directorId);
     }
 }

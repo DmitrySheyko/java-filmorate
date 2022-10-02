@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Director;
-import ru.yandex.practicum.filmorate.storage.Storages;
+import ru.yandex.practicum.filmorate.storage.DirectorDbStorage;
 
 import java.util.List;
 
@@ -13,7 +13,7 @@ import java.util.List;
 @Service
 @AllArgsConstructor
 public class DirectorService implements Services<Director> {
-    private final Storages<Director> storages;
+    private final DirectorDbStorage storages;
 
     @Override
     public List<Director> getAll() {
@@ -42,5 +42,9 @@ public class DirectorService implements Services<Director> {
             log.info("Указано некорректное имя режиссера");
             throw new ValidationException(String.format("Указано некорректное имя режиссера id = :" + director.getId()));
         }
+    }
+
+    public void deleteDirector(int directorId) {
+        storages.deleteDirector(directorId);
     }
 }

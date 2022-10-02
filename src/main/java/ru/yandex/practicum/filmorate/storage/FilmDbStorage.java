@@ -1,11 +1,11 @@
 package ru.yandex.practicum.filmorate.storage;
 
 import lombok.AllArgsConstructor;
-import org.springframework.jdbc.core.RowMapper;
-import org.springframework.stereotype.Repository;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
+import org.springframework.stereotype.Repository;
 import org.springframework.util.CollectionUtils;
 import ru.yandex.practicum.filmorate.exceptions.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.model.Director;
@@ -21,33 +21,11 @@ import java.util.*;
 public class FilmDbStorage implements Storages<Film> {
     private final JdbcTemplate jdbcTemplate;
     private final RowMapper<Film> filmMapper;
+    private final DirectorDbStorage directorDbStorage;
 
     @Override
     public List<Film> getAll() {
-        String sqlQuery = " WITH result_film_Id_genre AS " +
-                "(SELECT fg.film_id, " +
-                "STRING_AGG (result_genre.id_concat_name, ',') AS genre_id_name " +
-                "FROM films_genres AS fg " +
-                "LEFT JOIN (SELECT genre_id, (genre_id || ':' || genre_name) AS id_concat_name " +
-                "FROM genres AS g) AS result_genre " +
-                "ON fg.genre_id = result_genre.genre_id " +
-                "GROUP BY fg.film_id) " +
-
-                "SELECT f.film_id, " +
-                "f.film_name, " +
-                "f.description, " +
-                "f.duration, " +
-                "f.rating, " +
-                "f.release_date, " +
-                "f.rating, " +
-                "r.rating_name, " +
-                "result_film_Id_genre.genre_id_name " +
-                "FROM films AS f " +
-                "LEFT JOIN ratings AS r " +
-                "ON f.rating = r.rating_id " +
-                "LEFT JOIN result_film_Id_genre " +
-                "ON f.film_id = result_film_Id_genre.film_id " +
-                "ORDER BY f.film_id ";
+        String sqlQuery = "SELECT * FROM films";
         return jdbcTemplate.query(sqlQuery, filmMapper);
     }
 
@@ -138,30 +116,8 @@ public class FilmDbStorage implements Storages<Film> {
     @Override
     public Film getById(int filmId) {
         if (checkIsObjectInStorage(filmId)) {
-            String sqlQuery = " WITH  result_film_Id_genre AS " +
-                    "(SELECT fg.film_id, " +
-                    "STRING_AGG (result_genre .id_concat_name , ',') AS  genre_id_name " +
-                    "FROM films_genres AS fg " +
-                    "LEFT JOIN (SELECT genre_id, (genre_id || ':' || genre_name) AS id_concat_name " +
-                    "FROM genres AS g) AS result_genre " +
-                    "ON fg.genre_id = result_genre.genre_id " +
-                    "GROUP BY  fg.film_id) " +
-
-                    "SELECT f.film_id, " +
-                    "f.film_name, " +
-                    "f.description, " +
-                    "f.duration, " +
-                    "f.rating, " +
-                    "f.release_date, " +
-                    "f.rating, " +
-                    "r.rating_name, " +
-                    "result_film_Id_genre.genre_id_name " +
-                    "FROM films AS f " +
-                    "LEFT JOIN ratings AS r " +
-                    "ON f.rating = r.rating_id " +
-                    "LEFT JOIN   result_film_Id_genre " +
-                    "ON f.film_id = result_film_Id_genre.film_id " +
-                    "WHERE f.film_id = ? ";
+            String sqlQuery = "SELECT * FROM films " +
+                    "WHERE films.film_id = ? ";
             return jdbcTemplate.queryForObject(sqlQuery, filmMapper, filmId);
         } else {
             throw new ObjectNotFoundException(String.format("Фильм id=%s не найден", filmId));
@@ -169,52 +125,41 @@ public class FilmDbStorage implements Storages<Film> {
     }
 
     public List<Film> getPopularFilms(int count) {
-        String sqlQuery = " SELECT film_full_info.film_id, " +
-                "film_full_info.film_name, " +
-                "film_full_info.description, " +
-                "film_full_info.duration, " +
-                "film_full_info.rating, " +
-                "film_full_info.rating_name, " +
-                "film_full_info.release_date, " +
-                "film_full_info.genre_id_name, " +
-                "count (fl.user_id) " +
-                "FROM films_likes AS fl RIGHT JOIN " +
-
-                "(WITH  result_film_Id_genre AS " +
-                "(SELECT fg.film_id, " +
-                "STRING_AGG (result_genre.id_concat_name, ',') AS  genre_id_name " +
-                "FROM films_genres AS fg " +
-                "LEFT JOIN (SELECT genre_id, (genre_id || ':' || genre_name) AS id_concat_name " +
-                "FROM genres AS g) AS result_genre " +
-                "ON fg.genre_id =  result_genre.genre_id " +
-                "GROUP BY  fg.film_id) " +
-
-                "SELECT f.film_id, " +
-                "f.film_name,  " +
-                "f.description, " +
-                "f.duration, " +
-                "f.release_date, " +
-                "f.rating, " +
-                "r.rating_name, " +
-                "result_film_Id_genre.genre_id_name " +
-                "FROM films AS f LEFT JOIN ratings AS r " +
-                "ON f.rating=r.rating_id LEFT JOIN result_film_Id_genre " +
-                "ON f.film_id = result_film_Id_genre.film_id " +
-                "ORDER BY f.film_id) AS  film_full_info " +
-
-                "ON fl.film_id = film_full_info.film_id " +
-                "GROUP BY film_full_info.film_id, " +
-                "film_full_info.film_name, " +
-                "film_full_info.description, " +
-                "film_full_info.duration, " +
-                "film_full_info.rating, " +
-                "film_full_info.rating_name, " +
-                "film_full_info.release_date, " +
-                "film_full_info.genre_id_name " +
-                "ORDER BY count(fl.user_id) DESC, " +
-                "film_full_info.film_id " +
-                "LIMIT ? ";
+        String sqlQuery = "SELECT * FROM films f " +
+                "LEFT JOIN films_likes fl on f.film_id = fl.film_id " +
+                "GROUP BY  f.film_id " +
+                "ORDER BY COUNT(fl.user_id) DESC " +
+                "LIMIT ?";
         return jdbcTemplate.query(sqlQuery, filmMapper, count);
+    }
+
+    public List<Film> getFilmsByDirector(int directorId, String sortBy) {
+        if (directorDbStorage.checkIsObjectInStorage(directorId)) {
+            String selectQuery;
+            if (sortBy.equals("year")) {
+                selectQuery = "SELECT * FROM films f " +
+                        "INNER JOIN films_directors fd " +
+                        "ON fd.film_id = f.film_id " +
+                        "WHERE fd.director_id = ? " +
+                        "ORDER BY release_date";
+            } else if (sortBy.equals("likes")) {
+                selectQuery = "SELECT * FROM films f " +
+                        "INNER JOIN films_directors fd " +
+                        "ON fd.film_id = f.film_id " +
+                        "LEFT JOIN films_likes fl on f.film_id = fl.film_id " +
+                        "WHERE fd.director_id = ? " +
+                        "GROUP BY f.film_id " +
+                        "ORDER BY COUNT(fl.user_id) DESC ";
+            } else {
+                selectQuery = "SELECT * FROM films f " +
+                        "INNER JOIN films_directors fd " +
+                        "ON fd.film_id = f.film_id " +
+                        "WHERE fd.director_id = ? ";
+            }
+            return jdbcTemplate.query(selectQuery, filmMapper, directorId);
+        } else {
+            throw new ObjectNotFoundException(String.format("Директор id=%s не найден", directorId));
+        }
     }
 
     @Override

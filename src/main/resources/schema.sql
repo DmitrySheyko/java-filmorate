@@ -35,7 +35,7 @@ CREATE TABLE IF NOT EXISTS films_directors
     film_id  INTEGER
         CONSTRAINT film_director_film_id_FK REFERENCES films (film_id),
     director_id INTEGER
-        CONSTRAINT film_director_director_id_FK REFERENCES directors (director_id),
+        CONSTRAINT film_director_director_id_FK REFERENCES directors (director_id)  ON DELETE CASCADE,
     CONSTRAINT films_directors_film_id_director_id_unique UNIQUE (film_id, director_id)
 );
 

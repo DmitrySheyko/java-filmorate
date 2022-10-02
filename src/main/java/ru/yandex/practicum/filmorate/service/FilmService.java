@@ -64,6 +64,10 @@ public class FilmService implements Services<Film> {
         return filmDbStorage.getPopularFilms(count);
     }
 
+    public List<Film> getFilmsByDirector (int directorId, String sortBy) {
+        return filmDbStorage.getFilmsByDirector(directorId, sortBy);
+    }
+
     public boolean checkIsFilmDataCorrect(Film newFilm) {
         if (getInstance(newFilm.getReleaseDate()).isBefore(MIN_RELEASE_DATA)) {
             log.info("Указана некорректная дата выхода фильма");

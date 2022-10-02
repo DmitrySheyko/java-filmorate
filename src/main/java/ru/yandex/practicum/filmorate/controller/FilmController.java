@@ -63,4 +63,12 @@ public class FilmController implements Controllers<Film>{
         log.info("Получен запрос на получение списка из {} фильмов с наибольшим количеством лайков", count);
         return filmService.getPopularFilms(count);
     }
+
+    @GetMapping("director/{directorId}")
+    public List<Film> getFilmsByDirector(@PathVariable int directorId, @RequestParam() String sortBy) {
+        if (sortBy.equals("year") || sortBy.equals("likes")) {
+            log.info("Получен запрос на получение списка фильмов по режиссеру: {} с сортировкой по: {}", directorId, sortBy);
+            return filmService.getFilmsByDirector(directorId, sortBy);
+        } else return null;
+    }
 }
