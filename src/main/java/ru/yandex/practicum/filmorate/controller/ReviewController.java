@@ -18,10 +18,9 @@ public class ReviewController{
 
     private final ReviewService reviewService;
 
-
     @GetMapping
-    public List<Review> getAllById(@RequestParam(defaultValue = "-1") int filmId, @RequestParam(defaultValue = "10") int count) {
-        if (filmId==-1){
+    public List<Review> getAllById(@RequestParam(required = false) Integer filmId, @RequestParam(defaultValue = "10") int count) {
+        if (filmId==null){
             return reviewService.getAll();
         }
         return reviewService.getAllById(filmId, count);
