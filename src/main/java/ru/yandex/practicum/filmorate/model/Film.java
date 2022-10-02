@@ -15,6 +15,7 @@ public class Film {
     private Integer duration;
     private Mpa mpa;
     private List<Genre> genres;
+    private Director director;
     private Integer rate;
     private List<Review> reviews;
 }
