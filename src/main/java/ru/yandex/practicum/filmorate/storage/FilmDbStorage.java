@@ -127,7 +127,7 @@ public class FilmDbStorage implements Storages<Film> {
     public List<Film> getPopularFilms(int count) {
         String sqlQuery = "SELECT * FROM films f " +
                 "LEFT JOIN films_likes fl on f.film_id = fl.film_id " +
-                "GROUP BY  f.film_id " +
+                "GROUP BY  f.film_id, fl.user_id " +
                 "ORDER BY COUNT(fl.user_id) DESC " +
                 "LIMIT ?";
         return jdbcTemplate.query(sqlQuery, filmMapper, count);
