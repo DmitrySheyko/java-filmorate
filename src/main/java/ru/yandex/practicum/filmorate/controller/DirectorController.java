@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.service.Services;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @Slf4j
@@ -17,6 +18,7 @@ public class DirectorController implements Controllers<Director> {
     private final Services<Director> services;
 
     @Override
+    @GetMapping
     public List<Director> getAll() {
         log.info("Получен запрос на получение списка режиссеров");
         return services.getAll();
@@ -31,14 +33,14 @@ public class DirectorController implements Controllers<Director> {
 
     @Override
     @PostMapping
-    public Director add(@RequestBody Director newDirector) {
+    public Director add(@Valid @RequestBody Director newDirector) {
         log.info("Получен запрос на создание режиссера name={}", newDirector.getName());
         return services.add(newDirector);
     }
 
     @Override
     @PutMapping
-    public Director update(@RequestBody Director updatedDirector) {
+    public Director update(@Valid @RequestBody Director updatedDirector) {
         log.info("Получен запрос на обновление данных режиссера id={}", updatedDirector.getId());
         return services.update(updatedDirector);
     }
