@@ -106,14 +106,17 @@ class FilmDbStorageTest {
 
     @Test
     void shouldGetPopularFilms() {
+        filmDbStorage.addLike(3, 1);
+        filmDbStorage.addLike(3, 2);
+        filmDbStorage.addLike(3, 3);
+        filmDbStorage.addLike(2, 1);
         filmDbStorage.addLike(1, 1);
         filmDbStorage.addLike(1, 2);
-        filmDbStorage.addLike(2, 1);
         List<Film> popularFilms = filmDbStorage.getPopularFilms(3);
         System.out.println(popularFilms.toString());
-        assertThat(popularFilms.get(0)).isEqualTo(filmDbStorage.getById(1));
-        assertThat(popularFilms.get(1)).isEqualTo(filmDbStorage.getById(2));
-        assertThat(popularFilms.get(2)).isEqualTo(filmDbStorage.getById(3));
+        assertThat(popularFilms.get(0)).isEqualTo(filmDbStorage.getById(3));
+        assertThat(popularFilms.get(1)).isEqualTo(filmDbStorage.getById(1));
+        assertThat(popularFilms.get(2)).isEqualTo(filmDbStorage.getById(2));
         assertThatList(popularFilms).hasSizeBetween(3, 3);
     }
 }
