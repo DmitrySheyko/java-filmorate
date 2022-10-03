@@ -4,6 +4,7 @@ import lombok.Builder;
 import lombok.Data;
 
 import java.util.List;
+import java.util.Set;
 
 @Data
 @Builder
@@ -15,6 +16,7 @@ public class Film {
     private Integer duration;
     private Mpa mpa;
     private List<Genre> genres;
+    private Set<Director> directors;
     private Integer rate;
     private List<Review> reviews;
 }
