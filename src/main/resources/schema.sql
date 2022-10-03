@@ -58,5 +58,5 @@ CREATE TABLE IF NOT EXISTS films_likes
         CONSTRAINT film_likes_film_id_FK REFERENCES films (film_id) ON DELETE CASCADE,
     user_id INTEGER
         CONSTRAINT film_likes_user_id_FK REFERENCES users (user_id) ON DELETE CASCADE,
-    CONSTRAINT films_likes_film_id_user_id_unique UNIQUE (film_id, user_id)
+        CONSTRAINT films_likes_film_id_user_id_unique UNIQUE (film_id, user_id)
 );

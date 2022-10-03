@@ -1,23 +1,29 @@
 package ru.yandex.practicum.filmorate.storage;
 
 import lombok.AllArgsConstructor;
+import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import ru.yandex.practicum.filmorate.exceptions.ObjectNotFoundException;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 
+import javax.swing.*;
 import java.sql.PreparedStatement;
-import java.util.List;
-import java.util.Objects;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.*;
 
 @Repository
 @AllArgsConstructor
 public class UserDbStorage implements Storages<User> {
     private final JdbcTemplate jdbcTemplate;
     private final RowMapper<User> userMapper;
+    private final RowMapper<Film> filmMapper;
 
     @Override
     public List<User> getAll() {
@@ -140,5 +146,80 @@ public class UserDbStorage implements Storages<User> {
     public boolean checkIsObjectInStorage(int user) {
         String sqlQuery = "SELECT EXISTS (SELECT 1 FROM users WHERE user_id = ?)";
         return Boolean.TRUE.equals(jdbcTemplate.queryForObject(sqlQuery, Boolean.class, user));
+    }
+
+    public List<Film> getRecommendation(int userId) {  // Дмимтрий add-recommendation
+        if (checkIsObjectInStorage(userId)) {
+            String sqlQuery = "WITH same_taste_users AS " +
+                    " (SELECT user_id ," +
+                    " COUNT (film_id) as likes_number " +
+                    " FROM films_likes " +
+                    " WHERE film_id IN (SELECT film_id FROM films_likes WHERE user_id = ?) " +
+                    " AND user_id <> ?" +
+                    " GROUP BY user_id) " +
+
+                    " SELECT films_likes.user_id, likes_number, COUNT (films_likes.film_id) " +
+                    " FROM  same_taste_users " +
+                    " LEFT JOIN films_likes " +
+                    " ON same_taste_users.user_id = films_likes.user_id " +
+                    " WHERE likes_number = (select max(likes_number) from same_taste_users) " +
+                    " GROUP BY films_likes.user_id " +
+                    " ORDER BY COUNT (films_likes.film_id) DESC" +
+                    " LIMIT 1";
+            List<Integer> listOptimalUser = jdbcTemplate.query(sqlQuery, this::mapRowToUserId, userId, userId);
+            if (!listOptimalUser.isEmpty()) {
+                Integer optimalUser = jdbcTemplate.query(sqlQuery, this::mapRowToUserId, userId, userId).get(0);
+                String sqlQuery2 =
+                        " WITH result_film_id_genre AS  " +
+                                " (SELECT film_id, " +
+                                " group_concat (result_genre.id_concat_name) AS genre_id_name " +
+                                " FROM films_genres AS fg " +
+                                " LEFT JOIN (SELECT genre_id, (genre_id || ':' || genre_name) AS id_concat_name " +
+                                " FROM genres AS g) AS result_genre " +
+                                " ON fg.genre_id = result_genre.genre_id " +
+                                " GROUP BY fg.film_id) " +
+
+                                " SELECT f.film_id, " +
+                                " f.film_name, " +
+                                " f.description, " +
+                                " f.duration, " +
+                                " f.rating, " +
+                                " f.release_date, " +
+                                " f.rating, " +
+                                " r.rating_name, " +
+                                " result_film_Id_genre.genre_id_name " +
+                                " FROM films AS f " +
+                                " LEFT JOIN ratings AS r " +
+                                " ON f.rating = r.rating_id " +
+                                " LEFT JOIN result_film_id_genre " +
+                                " ON f.film_id = result_film_Id_genre.film_id " +
+                                " WHERE  f.film_id = ? " +
+                                " ORDER BY f.film_id ";
+                return jdbcTemplate.query(sqlQuery2, filmMapper, listOptimalUser.get(0));
+            } else {
+                return null;
+            }
+        } else {
+            throw new ObjectNotFoundException(String.format("Пользователь id=%s не найден.", userId));
+        }
+    }
+
+    //временно
+    public List<String> filmsLikes() {
+        String sqlQuery = "Select * from films_likes";
+        List<String> map2 = new ArrayList<>();
+        jdbcTemplate.query(sqlQuery, (ResultSetExtractor<List>) rs -> {
+            String map = null;
+            while (rs.next()) {
+                map = (String.format(" User - %s: Film - %s ", rs.getString("user_id"), rs.getString("film_id")));
+                map2.add(map);
+            }
+            return Collections.singletonList(map);
+        });
+        return map2;
+    }
+
+    private Integer mapRowToUserId(ResultSet resultSet, int rowNum) throws SQLException {
+        return resultSet.getInt("user_id");
     }
 }

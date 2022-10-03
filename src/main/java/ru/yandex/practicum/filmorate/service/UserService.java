@@ -4,12 +4,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserDbStorage;
 
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Service
@@ -77,4 +79,14 @@ public class UserService implements Services<User> {
         return Instant.from(ZonedDateTime.of(LocalDate.parse(time, dateTimeFormatter),
                 LocalTime.of(0, 0), ZoneId.of("Europe/Moscow")));
     }
+
+    public List<Film> getRecommendation(int userId) {  // Дмимтрий add-recommendation
+        return userStorage.getRecommendation(userId);
+    }
+
+    // временно
+    public List<String> filmsLikes(){
+        return userStorage.filmsLikes();
+    }
 }
+
