@@ -18,5 +18,4 @@ public class Film {
     private List<Genre> genres;
     private Set<Director> directors;
     private Integer rate;
-    private List<Review> reviews;
 }
