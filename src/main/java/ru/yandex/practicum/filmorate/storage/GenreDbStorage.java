@@ -10,6 +10,7 @@ import ru.yandex.practicum.filmorate.exceptions.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.model.Genre;
 
 import java.sql.PreparedStatement;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -61,6 +62,13 @@ public class GenreDbStorage implements Storages<Genre> {
         return updatedGenre;
     }
 
+    public List<Genre> findGenresOfFilm(long filmId) {
+        String genresRows = "SELECT * FROM genres " +
+                "INNER JOIN films_genres fg " +
+                "ON genres.genre_id = fg.genre_id " +
+                "WHERE fg.film_id  = ? ";
+        return new ArrayList<>(jdbcTemplate.query(genresRows, genreMapper, filmId));
+    }
     @Override
     public boolean checkIsObjectInStorage(int genreId) {
         String sqlQuery = "SELECT EXISTS (SELECT 1 FROM genres WHERE genre_id = ?)";
