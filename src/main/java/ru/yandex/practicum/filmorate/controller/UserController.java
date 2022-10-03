@@ -2,14 +2,12 @@ package ru.yandex.practicum.filmorate.controller;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
 
 import java.util.List;
-import java.util.Map;
 
 @Slf4j
 @RestController
@@ -74,14 +72,8 @@ public class UserController implements Controllers<User> {
     // Дмимтрий add-recommendation
     @GetMapping("{id}/recommendations")
     @ResponseBody
-    public List<Film> getRecommendation(@PathVariable("id") int userId){
+    public List<Film> getRecommendation(@PathVariable("id") int userId) {
         log.info("Получен запрос на получения списка рекоменаций для пользователя id={}", userId);
         return userService.getRecommendation(userId);
-    }
-//временный
-    @GetMapping("/recommendations")
-    @ResponseBody
-    public List<String> filmsLikes (){
-        return userService.filmsLikes();
     }
 }

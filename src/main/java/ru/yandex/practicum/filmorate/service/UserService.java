@@ -11,7 +11,6 @@ import ru.yandex.practicum.filmorate.storage.UserDbStorage;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Map;
 
 @Slf4j
 @Service
@@ -82,11 +81,6 @@ public class UserService implements Services<User> {
 
     public List<Film> getRecommendation(int userId) {  // Дмимтрий add-recommendation
         return userStorage.getRecommendation(userId);
-    }
-
-    // временно
-    public List<String> filmsLikes(){
-        return userStorage.filmsLikes();
     }
 }
 
