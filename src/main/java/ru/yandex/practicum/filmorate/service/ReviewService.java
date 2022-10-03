@@ -112,7 +112,7 @@ public class ReviewService implements Services<Review>{
         if(reviewDbStorage.checkIsReviewDislikedByUser(reviewId,userId)){
             removeDislikeById(reviewId,userId);
         }
-        String message = reviewDbStorage.addLikeById(reviewId,userId);
+        String message = reviewDbStorage.addLikeOrDislikeById(reviewId,userId,1);
         log.info(message);
         return message;
     }
@@ -123,7 +123,7 @@ public class ReviewService implements Services<Review>{
             log.error(message);
             throw new ObjectNotFoundException(message);
         }
-        String message = reviewDbStorage.removeLikeById(reviewId,userId);
+        String message = reviewDbStorage.removeLikeOrDislikeById(reviewId,userId,1);
         log.info(message);
         return message;
     }
@@ -142,7 +142,7 @@ public class ReviewService implements Services<Review>{
         if(reviewDbStorage.checkIsReviewLikedByUser(reviewId,userId)){
             removeLikeById(reviewId,userId);
         }
-        String message = reviewDbStorage.addDislikeById(reviewId,userId);
+        String message = reviewDbStorage.addLikeOrDislikeById(reviewId,userId,-1);
         log.info(message);
         return message;
     }
@@ -153,7 +153,7 @@ public class ReviewService implements Services<Review>{
             log.error(message);
             throw new ObjectNotFoundException(message);
         }
-        String message = reviewDbStorage.removeDislikeById(reviewId,userId);
+        String message = reviewDbStorage.removeLikeOrDislikeById(reviewId,userId,-1);
         log.info(message);
         return message;
     }

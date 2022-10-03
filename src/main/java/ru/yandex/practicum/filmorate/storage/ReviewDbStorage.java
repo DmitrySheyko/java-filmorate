@@ -98,28 +98,23 @@ public class ReviewDbStorage implements Storages<Review> {
         return "Отзыв review_id=" + reviewId + " был успешно удалён.";
     }
 
-    public String addLikeById(Integer reviewId, Integer userId) {
+    public String addLikeOrDislikeById(Integer reviewId, Integer userId,int isLike) {
         String sqlQuery = "INSERT INTO reviews_likes (review_id,user_id,is_positive) VALUES (?,?,?);";
-        jdbcTemplate.update(sqlQuery, reviewId, userId, 1);
-        return "Пользователь user_id=" + userId + " поставил лайк отзыву review_id=" + reviewId + ".";
+        jdbcTemplate.update(sqlQuery, reviewId, userId, isLike);
+        if (isLike==1){
+            return "Пользователь user_id=" + userId + " поставил лайк отзыву review_id=" + reviewId + ".";
+        } else
+            return "Пользователь user_id=" + userId + " поставил дизлайк отзыву review_id=" + reviewId + ".";
+
     }
 
-    public String removeLikeById(Integer reviewId, Integer userId) {
-        String sqlQuery = "DELETE FROM reviews_likes WHERE review_id=? AND user_id=? AND is_positive=1;";
+    public String removeLikeOrDislikeById(Integer reviewId, Integer userId,int isLike) {
+        String sqlQuery = "DELETE FROM reviews_likes WHERE review_id=? AND user_id=? AND is_positive=isLike;";
         jdbcTemplate.update(sqlQuery, reviewId, userId);
-        return "Пользователь user_id=" + userId + " убрал лайк с отзыва review_id=" + reviewId + ".";
-    }
-
-    public String addDislikeById(Integer reviewId, Integer userId) {
-        String sqlQuery = "INSERT INTO reviews_likes (review_id,user_id,is_positive) VALUES (?,?,?);";
-        jdbcTemplate.update(sqlQuery, reviewId, userId, -1);
-        return "Пользователь user_id=" + userId + " поставил дизлайк отзыву review_id=" + reviewId + ".";
-    }
-
-    public String removeDislikeById(Integer reviewId, Integer userId) {
-        String sqlQuery = "DELETE FROM reviews_likes WHERE review_id=? AND user_id=? AND is_positive=-1;";
-        jdbcTemplate.update(sqlQuery, reviewId, userId);
-        return "Пользователь user_id=" + userId + " убрал дизлайк с отзыва review_id=" + reviewId + ".";
+        if (isLike==1){
+            return "Пользователь user_id=" + userId + " убрал лайк с отзыва review_id=" + reviewId + ".";
+        } else
+            return "Пользователь user_id=" + userId + " убрал дизлайк с отзыва review_id=" + reviewId + ".";
     }
 
     @Override
