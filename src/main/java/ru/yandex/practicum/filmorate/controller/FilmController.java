@@ -13,7 +13,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/films")
 @AllArgsConstructor
-public class FilmController implements Controllers<Film>{
+public class FilmController implements Controllers<Film> {
     private final FilmService filmService;
 
     @Override
@@ -65,10 +65,13 @@ public class FilmController implements Controllers<Film>{
     }
 
     @GetMapping("director/{directorId}")
-    public List<Film> getFilmsByDirector(@PathVariable int directorId, @RequestParam() String sortBy) {
-        if (sortBy.equals("year") || sortBy.equals("likes")) {
-            log.info("Получен запрос на получение списка фильмов по режиссеру: {} с сортировкой по: {}", directorId, sortBy);
-            return filmService.getFilmsByDirector(directorId, sortBy);
-        } else return null;
+    public List<Film> getFilmsByDirector(@PathVariable int directorId, @RequestParam String sortBy) {
+        return filmService.getFilmsByDirector(directorId, sortBy);
+    }
+
+    @GetMapping("search")
+    public List<Film> searchFilmByNameOrDirector(@RequestParam String query, @RequestParam List<String> by) {
+        return filmService.searchFilmByNameOrDirector(query, by);
     }
 }
+

@@ -10,6 +10,7 @@ import ru.yandex.practicum.filmorate.storage.FilmDbStorage;
 
 import java.time.*;
 import java.time.format.DateTimeFormatter;
+import java.util.Collections;
 import java.util.List;
 
 @Slf4j
@@ -65,7 +66,24 @@ public class FilmService implements Services<Film> {
     }
 
     public List<Film> getFilmsByDirector (int directorId, String sortBy) {
-        return filmDbStorage.getFilmsByDirector(directorId, sortBy);
+        if (sortBy.equals("year") || sortBy.equals("likes")) {
+            log.info("Сервис: Получен запрос на получение списка фильмов по режиссеру: {} с сортировкой по: {}", directorId, sortBy);
+            return filmDbStorage.getFilmsByDirector(directorId, sortBy);
+        } else {
+            log.error("Сервис: Получен некорректный запрос на получение списка фильмов по режиссеру: {} с сортировкой по: {}. " +
+                    "Такие параметры не поддерживаются", directorId, sortBy);
+            return Collections.emptyList();
+        }
+    }
+
+    public List<Film> searchFilmByNameOrDirector(String query, List<String> by) {
+        if (by.contains("director") || by.contains("title")) {
+            log.info("Получен запрос на поиск фильмов по строке: {} в следующих полях: {}", query, by);
+            return filmDbStorage.searchFilmByNameOrDirector(query, by);
+        } else {
+            log.error("Получен некорректный запрос на поиск фильмов. Параметры: {} не поддерживаются сервисом. ", by);
+            return Collections.emptyList();
+        }
     }
 
     public boolean checkIsFilmDataCorrect(Film newFilm) {
