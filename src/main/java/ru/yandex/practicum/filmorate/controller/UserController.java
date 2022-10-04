@@ -3,7 +3,9 @@ package ru.yandex.practicum.filmorate.controller;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.model.Feed;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.FeedService;
 import ru.yandex.practicum.filmorate.service.UserService;
 
 import java.util.List;
@@ -13,7 +15,9 @@ import java.util.List;
 @RequestMapping("/users")
 @AllArgsConstructor
 public class UserController implements Controllers<User> {
+
     private final UserService userService;
+    private final FeedService feedService;
 
     @Override
     @PostMapping
@@ -66,5 +70,10 @@ public class UserController implements Controllers<User> {
     List<User> getListOfCommonFriends(@PathVariable("id") int userId, @PathVariable("otherId") int friendId) {
         log.info("Получен запрос на получение общего списка друзей пользователей id={} и id={}", userId, friendId);
         return userService.getListOfCommonFriends(userId, friendId);
+    }
+
+    @GetMapping("{id}/feed")
+    public List<Feed> getFeedsByUserId(@PathVariable("id") int userId) {
+        return feedService.getByUserId(userId);
     }
 }

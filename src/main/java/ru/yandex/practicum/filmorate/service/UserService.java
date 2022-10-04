@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.FeedDbStorage;
 import ru.yandex.practicum.filmorate.storage.UserDbStorage;
 
 import java.time.*;
@@ -15,11 +16,13 @@ import java.util.List;
 @Service
 public class UserService implements Services<User> {
     private final UserDbStorage userStorage;
+    private final FeedDbStorage feedDbStorage;
     private final DateTimeFormatter dateTimeFormatter;
 
     @Autowired
-    public UserService(UserDbStorage userStorage) {
+    public UserService(UserDbStorage userStorage, FeedDbStorage feedDbStorage) {
         this.userStorage = userStorage;
+        this.feedDbStorage = feedDbStorage;
         dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     }
 
@@ -43,12 +46,16 @@ public class UserService implements Services<User> {
         } else return null;
     }
 
-    public void addFriend(int userId, int friendId) {
+    public void addFriend(Integer userId, Integer friendId) {
         userStorage.addFriend(userId, friendId);
+        feedDbStorage.add(friendId, 3, 2, userId);
+        log.info("Лента событий пользователя user_id=" + userId + " была обновлена.");
     }
 
-    public void deleteFriend(int userId, int friendId) {
+    public void deleteFriend(Integer userId, Integer friendId) {
         userStorage.deleteFriend(userId, friendId);
+        feedDbStorage.add(friendId, 3, 1, userId);
+        log.info("Лента событий пользователя user_id=" + userId + " была обновлена.");
     }
 
     public List<User> getListOfFriends(int userId) {
@@ -77,4 +84,5 @@ public class UserService implements Services<User> {
         return Instant.from(ZonedDateTime.of(LocalDate.parse(time, dateTimeFormatter),
                 LocalTime.of(0, 0), ZoneId.of("Europe/Moscow")));
     }
+
 }
