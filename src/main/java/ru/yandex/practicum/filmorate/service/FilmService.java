@@ -16,7 +16,9 @@ import java.util.List;
 @Service
 public class FilmService implements Services<Film> {
     private final FilmDbStorage filmDbStorage;
+
     private final DateTimeFormatter dateTimeFormatter;
+
     private final static Instant MIN_RELEASE_DATA = Instant.from(ZonedDateTime.of(LocalDateTime.of(1895, 12,
             28, 0, 0), ZoneId.of("Europe/Moscow")));
 
@@ -60,11 +62,20 @@ public class FilmService implements Services<Film> {
         filmDbStorage.deleteLike(filmId, userId);
     }
 
-    public List<Film> getPopularFilms(int count) {
+    public List<Film> getPopularFilms(int count, int genreId, int year) {
+        if (genreId != 0 && year != 0) {
+            return filmDbStorage.getPopularFilmSortedByGenreAndYear(count, genreId, year);
+        }
+        if (genreId != 0 && year == 0) {
+            return filmDbStorage.getPopularFilmSortedByGenre(count, genreId);
+        }
+        if (genreId == 0 && year != 0) {
+            return filmDbStorage.getPopularFilmSortedByYear(count, year);
+        }
         return filmDbStorage.getPopularFilms(count);
     }
 
-    public List<Film> getFilmsByDirector (int directorId, String sortBy) {
+    public List<Film> getFilmsByDirector(int directorId, String sortBy) {
         return filmDbStorage.getFilmsByDirector(directorId, sortBy);
     }
 
