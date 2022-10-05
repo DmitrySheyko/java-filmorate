@@ -58,19 +58,13 @@ public class FilmService implements Services<Film> {
 
     public void addLike(Integer filmId, Integer userId) {
         filmDbStorage.addLike(filmId, userId);
-        /**
-         typeID=1 - LIKE, operationID=2 - ADD
-         **/
-        feedDbStorage.add(filmId, 1, 2, userId);
+        feedDbStorage.add(filmId, FeedService.eventTypeLike, FeedService.operationAdd, userId);
         log.info("Лента событий пользователя user_id=" + userId + " была обновлена.");
     }
 
     public void deleteLike(Integer filmId, Integer userId) {
         filmDbStorage.deleteLike(filmId, userId);
-        /**
-         typeID=1 - LIKE, operationID=1 - REMOVE
-         **/
-        feedDbStorage.add(filmId, 1, 1, userId);
+        feedDbStorage.add(filmId, FeedService.eventTypeLike, FeedService.operationRemove, userId);
         log.info("Лента событий пользователя user_id=" + userId + " была обновлена.");
     }
 

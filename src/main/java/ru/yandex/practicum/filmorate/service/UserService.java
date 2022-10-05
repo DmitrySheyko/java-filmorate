@@ -48,19 +48,13 @@ public class UserService implements Services<User> {
 
     public void addFriend(Integer userId, Integer friendId) {
         userStorage.addFriend(userId, friendId);
-        /**
-         typeID=3 - FRIEND, operationID=2 - ADD
-         **/
-        feedDbStorage.add(friendId, 3, 2, userId);
+        feedDbStorage.add(friendId, FeedService.eventTypeFriend, FeedService.operationAdd, userId);
         log.info("Лента событий пользователя user_id=" + userId + " была обновлена.");
     }
 
     public void deleteFriend(Integer userId, Integer friendId) {
         userStorage.deleteFriend(userId, friendId);
-        /**
-         typeID=3 - FRIEND, operationID=1 - REMOVE
-         **/
-        feedDbStorage.add(friendId, 3, 1, userId);
+        feedDbStorage.add(friendId, FeedService.eventTypeFriend, FeedService.operationRemove, userId);
         log.info("Лента событий пользователя user_id=" + userId + " была обновлена.");
     }
 
