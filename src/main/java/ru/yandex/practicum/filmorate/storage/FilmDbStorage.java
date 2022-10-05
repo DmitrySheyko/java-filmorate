@@ -189,7 +189,7 @@ public class FilmDbStorage implements Storages<Film> {
                 selectQuery = "SELECT * FROM films f " +
                         "INNER JOIN films_directors fd " +
                         "ON fd.film_id = f.film_id " +
-                        "WHERE fd.director_id = ? ";
+                        "WHERE fd.director_id = ?";
             }
             return jdbcTemplate.query(selectQuery, filmMapper, directorId);
         } else {
