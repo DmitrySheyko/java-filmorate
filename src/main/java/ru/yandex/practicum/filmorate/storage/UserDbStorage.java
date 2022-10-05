@@ -36,17 +36,13 @@ public class UserDbStorage implements Storages<User> {
 
     @Override
     public User getById(int userId) {
-        if (checkIsObjectInStorage(userId)) {
-            String sqlQuery = "SELECT user_id, " +
-                    "user_name, " +
-                    "login, email, " +
-                    "birth_day " +
-                    "FROM users " +
-                    "WHERE user_id = ?";
-            return jdbcTemplate.queryForObject(sqlQuery, userMapper, userId);
-        } else {
-            throw new ObjectNotFoundException(String.format("Пользователь id=%s не найден.", userId));
-        }
+        String sqlQuery = "SELECT user_id, " +
+                "user_name, " +
+                "login, email, " +
+                "birth_day " +
+                "FROM users " +
+                "WHERE user_id = ?";
+        return jdbcTemplate.queryForObject(sqlQuery, userMapper, userId);
     }
 
     @Override
@@ -66,58 +62,47 @@ public class UserDbStorage implements Storages<User> {
         return newUser;
     }
 
-    public void addFriend(int userId, int friendId) {
-        boolean isUserExist = checkIsObjectInStorage(userId);
-        boolean isFriendExist = checkIsObjectInStorage(friendId);
-        if (isUserExist && isFriendExist) {
-            String sqlQuery = "INSERT INTO users_friends (user_id, friend_id) " +
-                    "VALUES (?, ?)";
-            jdbcTemplate.update(sqlQuery, userId, friendId);
-        } else {
-            throw new ObjectNotFoundException(String.format("Пользователь id=%s не найден.",
-                    isUserExist ? friendId : userId));
-        }
+    public String addFriend(int userId, int friendId) {
+        String sqlQuery = "INSERT INTO users_friends (user_id, friend_id) " +
+                "VALUES (?, ?)";
+        jdbcTemplate.update(sqlQuery, userId, friendId);
+        return "Пользователь user_id=" + userId
+                + " успешно добавлен в друзья пользователю user_id=" + friendId + ".";
     }
 
     @Override
     public User update(User updatedUser) {
-        if (checkIsObjectInStorage(updatedUser)) {
-            String sqlQuery = "UPDATE users " +
-                    "SET user_name = ?, login = ?, email = ?, birth_day = ? " +
-                    "WHERE user_id = ?";
-            jdbcTemplate.update(sqlQuery
-                    , updatedUser.getName()
-                    , updatedUser.getLogin()
-                    , updatedUser.getEmail()
-                    , updatedUser.getBirthday()
-                    , updatedUser.getId());
-            return updatedUser;
-        } else {
-            throw new ObjectNotFoundException(String.format("Пользователь id=%s не найден.", updatedUser.getId()));
-        }
+        String sqlQuery = "UPDATE users " +
+                "SET user_name = ?, login = ?, email = ?, birth_day = ? " +
+                "WHERE user_id = ?";
+        jdbcTemplate.update(sqlQuery
+                , updatedUser.getName()
+                , updatedUser.getLogin()
+                , updatedUser.getEmail()
+                , updatedUser.getBirthday()
+                , updatedUser.getId());
+        return updatedUser;
     }
 
-    public void deleteFriend(int userId, int friendId) {
+    public String deleteFriend(int userId, int friendId) {
         String sqlQuery = "DELETE FROM users_friends " +
                 "WHERE user_id = ? AND friend_id = ?";
         jdbcTemplate.update(sqlQuery, userId, friendId);
+        return "Пользователь user_id=" + userId
+                + " успешно удален из друзей пользователя user_id=" + friendId + ".";
     }
 
     public List<User> getListOfFriends(int userId) {
-        if (checkIsObjectInStorage(userId)) {
-            String sqlQuery = "SELECT u.user_id, " +
-                    "u.user_name, " +
-                    "u.login, " +
-                    "u.email, " +
-                    "u.birth_day " +
-                    "FROM users_friends AS uf LEFT JOIN users AS u " +
-                    "ON uf.friend_id = u.user_id " +
-                    "WHERE uf.user_id = ?" +
-                    "ORDER BY u.user_id";
-            return jdbcTemplate.query(sqlQuery, userMapper, userId);
-        } else {
-            throw new ObjectNotFoundException(String.format("Пользователь id=%s не найден.", userId));
-        }
+        String sqlQuery = "SELECT u.user_id, " +
+                "u.user_name, " +
+                "u.login, " +
+                "u.email, " +
+                "u.birth_day " +
+                "FROM users_friends AS uf LEFT JOIN users AS u " +
+                "ON uf.friend_id = u.user_id " +
+                "WHERE uf.user_id = ?" +
+                "ORDER BY u.user_id";
+        return jdbcTemplate.query(sqlQuery, userMapper, userId);
     }
 
     public List<User> getListOfCommonFriends(int userId, int friendId) {
@@ -145,65 +130,26 @@ public class UserDbStorage implements Storages<User> {
         return Boolean.TRUE.equals(jdbcTemplate.queryForObject(sqlQuery, Boolean.class, user));
     }
 
-    // Дмимтрий add-recommendation
     public List<Film> getRecommendation(int userId) {
-        if (checkIsObjectInStorage(userId)) {
-            String sqlQuery = "WITH same_taste_users AS " +  // данным запросом вычисляем
-                    " (SELECT user_id ," +                   // оптимального user для рекоммендаций
-                    " COUNT (film_id) as likes_number " +
-                    " FROM films_likes " +
-                    " WHERE film_id IN (SELECT film_id FROM films_likes WHERE user_id = ?) " +
-                    " AND user_id <> ?" +
-                    " GROUP BY user_id) " +
-
-                    " SELECT fl.user_id, " +
-                    " likes_number, " +
-                    " COUNT (fl.film_id) " +
-                    " FROM  same_taste_users " +
-                    " LEFT JOIN films_likes AS fl" +
-                    " ON same_taste_users.user_id = fl.user_id " +
-                    " WHERE likes_number = (select max(likes_number) from same_taste_users) " +
-                    " GROUP BY fl.user_id " +
-                    " ORDER BY COUNT (fl.film_id) DESC" +
-                    " LIMIT 1";
-
-            Integer optimalUser = jdbcTemplate.queryForObject(sqlQuery, this::mapRowToUserId, userId, userId);
-            if (! (optimalUser == null)) {
-                String sqlQuery2 = " WITH result_film_id_genre AS " +   // данным запросом получаем
-                        " (SELECT film_id, " +                          // рекоммендованные фильмы
-                        " group_concat (result_genre.id_concat_name) AS genre_id_name " +
-                        " FROM films_genres AS fg " +
-                        " LEFT JOIN (SELECT genre_id, (genre_id || ':' || genre_name) AS id_concat_name " +
-                        " FROM genres AS g) AS result_genre " +
-                        " ON fg.genre_id = result_genre.genre_id " +
-                        " GROUP BY fg.film_id) " +
-
-                        " SELECT f.film_id, " +
-                        " f.film_name, " +
-                        " f.description, " +
-                        " f.duration, " +
-                        " f.rating, " +
-                        " f.release_date, " +
-                        " f.rating, " +
-                        " r.rating_name, " +
-                        " result_film_Id_genre.genre_id_name " +
-                        " FROM films AS f " +
-                        " LEFT JOIN ratings AS r " +
-                        " ON f.rating = r.rating_id " +
-                        " LEFT JOIN result_film_id_genre " +
-                        " ON f.film_id = result_film_Id_genre.film_id " +
-                        " WHERE  f.film_id = ? " +
-                        " ORDER BY f.film_id ";
-                return jdbcTemplate.query(sqlQuery2, filmMapper, optimalUser);
-            } else {
-                return null;
-            }
+        String sqlQuery = "SELECT fl1.user_id " +
+                "FROM films_likes AS fl1 " +
+                "LEFT JOIN films_likes AS fl2 " +
+                "ON fl1.user_id = fl2.user_id " +
+                "WHERE fl1.film_id IN (SELECT film_id FROM films_likes WHERE user_id = ?) " +
+                "AND fl1.user_id <> ? " +
+                "GROUP BY fl1.user_id  " +
+                "ORDER BY COUNT (fl1.film_id) DESC, COUNT (fl2.film_id)  DESC LIMIT 1 ";
+        Integer optimalUser = jdbcTemplate.queryForObject(sqlQuery,
+                (ResultSet resultSet, int rowNum) -> resultSet.getInt("user_id"), userId, userId);
+        if (!(optimalUser == null)) {
+            String sqlQuery2 = "SELECT * " +
+                    "FROM films_likes AS fl LEFT JOIN films AS f " +
+                    "ON fl.film_id = f.film_id " +
+                    "WHERE fl.user_id = ? " +
+                    "AND fl.film_id NOT IN (SELECT film_id FROM films_likes WHERE user_id = ?)";
+            return jdbcTemplate.query(sqlQuery2, filmMapper, optimalUser, userId);
         } else {
-            throw new ObjectNotFoundException(String.format("Пользователь id=%s не найден.", userId));
+            return Collections.emptyList();
         }
-    }
-
-    private Integer mapRowToUserId(ResultSet resultSet, int rowNum) throws SQLException {
-        return resultSet.getInt("user_id");
     }
 }

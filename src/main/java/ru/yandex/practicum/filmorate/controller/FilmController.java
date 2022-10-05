@@ -19,41 +19,38 @@ public class FilmController implements Controllers<Film> {
     @Override
     @GetMapping
     public List<Film> getAll() {
-        log.info("Получен запрос на получение списка фильмов");
+//        log.info("Получен запрос на получение списка фильмов");
         return filmService.getAll();
     }
 
     @Override
     @GetMapping("{id}")
     public Film getById(@PathVariable("id") int filmId) {
-        log.info("Получен запрос на получение фильма id={}", filmId);
+//        log.info("Получен запрос на получение фильма id={}", filmId);
         return filmService.getById(filmId);
     }
 
     @Override
     @PostMapping
     public Film add(@RequestBody Film newFilm) {
-        log.info("Получен запрос на добавление нового фильма");
+//        log.info("Получен запрос на добавление нового фильма");
         return filmService.add(newFilm);
     }
 
     @Override
     @PutMapping
-    public Film update(@RequestBody Film updatedFilm) {
-        log.info("Получен запрос на обновление фильма id={}", updatedFilm.getId());
-        return filmService.update(updatedFilm);
+    public Film update(@RequestBody Film filmForUpdate) {
+        return filmService.update(filmForUpdate);
     }
 
     @PutMapping("{id}/like/{userId}")
-    public void addLike(@PathVariable("id") int filmId, @PathVariable int userId) {
-        log.info("Получен запрос на добавление лайка фильму id={} от пользователя id={}", filmId, userId);
-        filmService.addLike(filmId, userId);
+    public String addLike(@PathVariable("id") int filmId, @PathVariable int userId) {
+        return filmService.addLike(filmId, userId);
     }
 
     @DeleteMapping("{id}/like/{userId}")
-    public void deleteLike(@PathVariable("id") int filmId, @PathVariable int userId) {
-        log.info("Получен запрос на удаление лайка фильму id={} от пользователя id={}", filmId, userId);
-        filmService.deleteLike(filmId, userId);
+    public String deleteLike(@PathVariable("id") int filmId, @PathVariable int userId) {
+        return filmService.deleteLike(filmId, userId);
     }
 
     @GetMapping("popular")
@@ -65,11 +62,18 @@ public class FilmController implements Controllers<Film> {
                                       @RequestParam(defaultValue = "0")
                                       int year) {
         return filmService.getPopularFilms(count, genreId, year);
+//                                      @Positive(message = "Количество фиильмов в списке должно быть положительным")
+//                                      int count) {
+//        return filmService.getPopularFilms(count);
     }
 
     @GetMapping("director/{directorId}")
     public List<Film> getFilmsByDirector(@PathVariable int directorId, @RequestParam String sortBy) {
         return filmService.getFilmsByDirector(directorId, sortBy);
+//    public List<Film> getFilmsByDirector(@PathVariable int directorId, @RequestParam() String sortBy) {
+//        if (sortBy.equals("year") || sortBy.equals("likes")) {
+//            return filmService.getFilmsByDirector(directorId, sortBy);
+//        } else return null;
     }
 
     @GetMapping("search")

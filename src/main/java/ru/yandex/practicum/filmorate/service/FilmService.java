@@ -3,11 +3,14 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exceptions.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.FeedDbStorage;
 import ru.yandex.practicum.filmorate.storage.FilmDbStorage;
+import ru.yandex.practicum.filmorate.storage.UserDbStorage;
 
 import java.time.*;
 import java.time.format.DateTimeFormatter;
@@ -20,53 +23,138 @@ public class FilmService implements Services<Film> {
 
     private final FilmDbStorage filmDbStorage;
     private final FeedDbStorage feedDbStorage;
+    private final UserDbStorage userDbStorage;
     private final DateTimeFormatter dateTimeFormatter;
     private final static Instant MIN_RELEASE_DATA = Instant.from(ZonedDateTime.of(LocalDateTime.of(1895, 12,
             28, 0, 0), ZoneId.of("Europe/Moscow")));
 
     @Autowired
-    public FilmService(@Qualifier("filmDbStorage") FilmDbStorage filmDbStorage, FeedDbStorage feedDbStorage) {
+//    public FilmService(@Qualifier("filmDbStorage") FilmDbStorage filmDbStorage, FeedDbStorage feedDbStorage) {
+    public FilmService(@Qualifier("filmDbStorage") FilmDbStorage filmDbStorage, UserDbStorage userDbStorage, FeedDbStorage feedDbStorage) {
         this.filmDbStorage = filmDbStorage;
+        this.userDbStorage = userDbStorage;
         dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         this.feedDbStorage = feedDbStorage;
     }
 
     @Override
     public List<Film> getAll() {
-        return filmDbStorage.getAll();
+        try {
+            List<Film> films = filmDbStorage.getAll();
+            log.info("Получен список всех фильмов");
+            return films;
+        } catch (IncorrectResultSizeDataAccessException e) {
+            //если в базе нет фильмов - пустой список
+            return Collections.emptyList();
+        }
     }
 
     @Override
     public Film getById(int filmId) {
-        return filmDbStorage.getById(filmId);
+        try {
+            Film film = filmDbStorage.getById(filmId);
+            log.info("Получен фильм film_id=" + filmId + ".");
+            return film;
+        } catch (IncorrectResultSizeDataAccessException e) {
+            String message = "Фильм film_id=" + filmId + " отсутствует в базе данных.";
+            log.error(message);
+            throw new ObjectNotFoundException(message);
+        }
     }
 
     @Override
     public Film add(Film newFilm) {
-        if (checkIsFilmDataCorrect(newFilm)) {
-            return filmDbStorage.add(newFilm);
+        try {
+            if (!checkIsFilmDataCorrect(newFilm)) {
+                String message = "Данные фильма film_id=" + newFilm.getId() + " содержат некорректную информцию.";
+                log.error(message);
+                throw new ValidationException(message);
+            }
+            filmDbStorage.add(newFilm);
+            log.info("Фильм film_id=" + newFilm.getId() + " успешно добавлен.");
+            return newFilm;
+        } catch (IncorrectResultSizeDataAccessException e) {
+            String message = "Фильм film_id=" + newFilm.getId() + " уже был добавлен.";
+            log.error(message);
+            throw new ValidationException(message);
         }
-        return null;
     }
 
     @Override
-    public Film update(Film updatedFilm) {
-        if (checkIsFilmDataCorrect(updatedFilm)) {
-            return filmDbStorage.update(updatedFilm);
+    public Film update(Film filmForUpdate) {
+        try {
+            if (!checkIsFilmDataCorrect(filmForUpdate)) {
+                String message = "Описание фильма film_id=" + filmForUpdate.getId() + " содердит некорректные данные.";
+                log.error(message);
+                throw new ValidationException(message);
+            }
+            if (!userDbStorage.checkIsObjectInStorage(filmForUpdate.getId())) {
+                String message = "Пользователь user_id=" + filmForUpdate.getId() + " отсутствует в базе данных.";
+                log.error(message);
+                throw new ObjectNotFoundException(message);
+            }
+            filmDbStorage.update(filmForUpdate);
+            log.info("Фильм film_id=" + filmForUpdate.getId() + " успешно обновлен.");
+            return filmForUpdate;
+        } catch (IncorrectResultSizeDataAccessException e) {
+            String message = "Фильм film_id=" + filmForUpdate.getId() + " отсутствует в базе данных.";
+            log.error(message);
+            throw new ObjectNotFoundException(message);
         }
-        return null;
     }
 
-    public void addLike(Integer filmId, Integer userId) {
-        filmDbStorage.addLike(filmId, userId);
+//    public void addLike(Integer filmId, Integer userId) {
+//        filmDbStorage.addLike(filmId, userId);
+//        feedDbStorage.add(filmId, FeedService.eventTypeLike, FeedService.operationAdd, userId);
+//        log.info("Лента событий пользователя user_id=" + userId + " была обновлена.");
+    public String addLike(Integer filmId, Integer userId) {
+        if (!filmDbStorage.checkIsObjectInStorage(filmId)) {
+            String message = "Фильм film_id=" + filmId + " отсутствует в базе данных.";
+            log.error(message);
+            throw new ObjectNotFoundException(message);
+        }
+        if (!userDbStorage.checkIsObjectInStorage(userId)) {
+            String message = "Пользователь user_id=" + userId + " отсутствует в базе данных.";
+            log.error(message);
+            throw new ObjectNotFoundException(message);
+        }
+        if (filmDbStorage.checkIsFilmHasLikeFromUser(filmId, userId)) {
+            String message = "Пользователь user_id=" + userId + " уже поставил лайк фильму film_id=" + filmId + ".";
+            log.error(message);
+            throw new ValidationException(message);
+        }
+        String message = filmDbStorage.addLike(filmId, userId);
+        log.info(message);
         feedDbStorage.add(filmId, FeedService.eventTypeLike, FeedService.operationAdd, userId);
         log.info("Лента событий пользователя user_id=" + userId + " была обновлена.");
+        return message;
     }
 
-    public void deleteLike(Integer filmId, Integer userId) {
-        filmDbStorage.deleteLike(filmId, userId);
+//    public void deleteLike(Integer filmId, Integer userId) {
+//        filmDbStorage.deleteLike(filmId, userId);
+//        feedDbStorage.add(filmId, FeedService.eventTypeLike, FeedService.operationRemove, userId);
+//        log.info("Лента событий пользователя user_id=" + userId + " была обновлена.");
+    public String deleteLike(Integer filmId, Integer userId) {
+        if (!filmDbStorage.checkIsObjectInStorage(filmId)) {
+            String message = "Фильм film_id=" + filmId + " отсутствует в базе данных.";
+            log.error(message);
+            throw new ObjectNotFoundException(message);
+        }
+        if (!userDbStorage.checkIsObjectInStorage(userId)) {
+            String message = "Пользователь user_id=" + userId + " отсутствует в базе данных.";
+            log.error(message);
+            throw new ObjectNotFoundException(message);
+        }
+        if (!filmDbStorage.checkIsFilmHasLikeFromUser(filmId, userId)) {
+            String message = "Пользователь user_id=" + userId + " уже поставил лайк фильму film_id=" + filmId + ".";
+            log.error(message);
+            throw new ValidationException(message);
+        }
+        String message = filmDbStorage.deleteLike(filmId, userId);
+        log.info(message);
         feedDbStorage.add(filmId, FeedService.eventTypeLike, FeedService.operationRemove, userId);
         log.info("Лента событий пользователя user_id=" + userId + " была обновлена.");
+        return message;
     }
 
     public List<Film> getPopularFilms(int count, int genreId, int year) {
@@ -87,6 +175,14 @@ public class FilmService implements Services<Film> {
         }
         log.info("Получен запрос на получение списка из {} фильмов с наибольшим количеством лайков", count);
         return filmDbStorage.getPopularFilms(count);
+//    public List<Film> getPopularFilms(int count) {
+//        try {
+//            List<Film> films = filmDbStorage.getPopularFilms(count);
+//            log.info("Получен список популярных фильмов");
+//            return films;
+//        } catch (IncorrectResultSizeDataAccessException e) {
+//            return Collections.emptyList();
+//        }
     }
 
     public List<Film> getFilmsByDirector (int directorId, String sortBy) {
@@ -110,9 +206,13 @@ public class FilmService implements Services<Film> {
         }
     }
 
+//    public List<Film> getFilmsByDirector(int directorId, String sortBy) {
+//        return filmDbStorage.getFilmsByDirector(directorId, sortBy);
+//    }
+
     public boolean checkIsFilmDataCorrect(Film newFilm) {
         if (getInstance(newFilm.getReleaseDate()).isBefore(MIN_RELEASE_DATA)) {
-            log.info("Указана некорректная дата выхода фильма");
+            log.error("Указана некорректная дата выхода фильма");
             throw new ValidationException(String.format("Указана некорректная дата выхода фильма. Требуется дата" +
                     " не ранее %s", MIN_RELEASE_DATA));
         } else {

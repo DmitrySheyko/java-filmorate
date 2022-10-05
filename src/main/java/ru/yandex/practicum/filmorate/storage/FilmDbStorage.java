@@ -97,31 +97,23 @@ public class FilmDbStorage implements Storages<Film> {
         }
     }
 
-    public void addLike(int filmId, int userId) {
+    public String addLike(int filmId, int userId) {
         String sqlQuery = "INSERT INTO films_likes (film_id, user_id) VALUES (?, ?)";
         jdbcTemplate.update(sqlQuery, filmId, userId);
+        return "Пользователь user_id=" + userId + " успешно поставил лайк фильму film_id=" + filmId + ".";
     }
 
-
-    public void deleteLike(int filmId, int userid) {
-        if (checkIsFilmHasLikeFromUser(filmId, userid)) {
-            String sqlQuery = "DELETE FROM films_likes WHERE film_id = ? AND user_id = ?";
-            jdbcTemplate.update(sqlQuery, filmId, userid);
-        } else {
-            throw new ObjectNotFoundException(String.format("Лайк от пользователя id=%s фмльму id=%s не найден",
-                    userid, filmId));
-        }
+    public String deleteLike(int filmId, int userId) {
+        String sqlQuery = "DELETE FROM films_likes WHERE film_id = ? AND user_id = ?";
+        jdbcTemplate.update(sqlQuery, filmId, userId);
+        return "Пользователь user_id=" + userId + " успешно удалил лайк фильму film_id=" + filmId + ".";
     }
 
     @Override
     public Film getById(int filmId) {
-        if (checkIsObjectInStorage(filmId)) {
-            String sqlQuery = "SELECT * FROM films " +
-                    "WHERE films.film_id = ? ";
-            return jdbcTemplate.queryForObject(sqlQuery, filmMapper, filmId);
-        } else {
-            throw new ObjectNotFoundException(String.format("Фильм id=%s не найден", filmId));
-        }
+        String sqlQuery = "SELECT * FROM films " +
+                "WHERE films.film_id = ? ";
+        return jdbcTemplate.queryForObject(sqlQuery, filmMapper, filmId);
     }
 
     public List<Film> getPopularFilms(int count) {
@@ -199,14 +191,14 @@ public class FilmDbStorage implements Storages<Film> {
 
     public List<Film> searchFilmByNameOrDirector(String query, List<String> by) {
         String selectQuery;
-        if (by.size()==1 && by.contains("title")) {
+        if (by.size() == 1 && by.contains("title")) {
             selectQuery = "SELECT * FROM films f " +
                     "LEFT JOIN films_likes fl on f.film_id = fl.film_id " +
-                    "WHERE UPPER(f.film_name) LIKE UPPER(?) "  +
+                    "WHERE UPPER(f.film_name) LIKE UPPER(?) " +
                     "GROUP BY f.film_id " +
                     "ORDER BY COUNT(fl.user_id) DESC ";
             return jdbcTemplate.query(selectQuery, filmMapper, "%" + query + "%");
-        } else if (by.size()==1 && by.contains("director")) {
+        } else if (by.size() == 1 && by.contains("director")) {
             selectQuery = "SELECT f.*, d.director_name FROM films f " +
                     "INNER JOIN films_directors fd " +
                     "ON fd.film_id = f.film_id " +
@@ -217,7 +209,7 @@ public class FilmDbStorage implements Storages<Film> {
                     "GROUP BY f.film_id " +
                     "ORDER BY COUNT(fl.user_id) DESC ";
             return jdbcTemplate.query(selectQuery, filmMapper, "%" + query + "%");
-        } else if (by.size()==2 && by.contains("title") && by.contains("director")) {
+        } else if (by.size() == 2 && by.contains("title") && by.contains("director")) {
             selectQuery = "SELECT f.*, d.director_name FROM films f " +
                     "LEFT JOIN films_directors fd " +
                     "ON fd.film_id = f.film_id " +
@@ -229,11 +221,9 @@ public class FilmDbStorage implements Storages<Film> {
                     "ORDER BY COUNT(fl.user_id) DESC ";
             return jdbcTemplate.query(selectQuery, filmMapper, "%" + query + "%", "%" + query + "%");
         } else return Collections.emptyList();
-
     }
 
-
-        @Override
+    @Override
     public boolean checkIsObjectInStorage(Film film) {
         String sqlQuery = "SELECT EXISTS (SELECT 1 FROM films WHERE film_id = ?)";
         return Boolean.TRUE.equals(jdbcTemplate.queryForObject(sqlQuery, Boolean.class, film.getId()));
@@ -245,12 +235,12 @@ public class FilmDbStorage implements Storages<Film> {
         return Boolean.TRUE.equals(jdbcTemplate.queryForObject(sqlQuery, Boolean.class, filmId));
     }
 
-    private boolean checkIsFilmHasLikeFromUser(Film film, User user) {
+    public boolean checkIsFilmHasLikeFromUser(Film film, User user) {
         String sqlQuery = "SELECT EXISTS (SELECT 1 FROM films_likes WHERE film_id = ? AND user_id = ?)";
         return Boolean.TRUE.equals(jdbcTemplate.queryForObject(sqlQuery, Boolean.class, film.getId(), user.getId()));
     }
 
-    private boolean checkIsFilmHasLikeFromUser(int filmId, int userId) {
+    public boolean checkIsFilmHasLikeFromUser(int filmId, int userId) {
         String sqlQuery = "SELECT EXISTS (SELECT 1 FROM films_likes WHERE film_id = ? AND user_id = ?)";
         return Boolean.TRUE.equals(jdbcTemplate.queryForObject(sqlQuery, Boolean.class, filmId, userId));
     }

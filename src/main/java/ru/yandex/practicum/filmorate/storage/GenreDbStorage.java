@@ -6,7 +6,6 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
-import ru.yandex.practicum.filmorate.exceptions.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.model.Genre;
 
 import java.sql.PreparedStatement;
@@ -31,14 +30,10 @@ public class GenreDbStorage implements Storages<Genre> {
 
     @Override
     public Genre getById(int genreId) {
-        if (checkIsObjectInStorage(genreId)) {
             String sqlQuery = "SELECT genre_id, " +
                     "genre_name " +
                     "FROM genres WHERE genre_id = ?";
             return jdbcTemplate.queryForObject(sqlQuery, genreMapper, genreId);
-        } else {
-            throw new ObjectNotFoundException(String.format("Жанр id=%s не найден", genreId));
-        }
     }
 
     @Override
@@ -55,11 +50,11 @@ public class GenreDbStorage implements Storages<Genre> {
     }
 
     @Override
-    public Genre update(Genre updatedGenre) {
+    public Genre update(Genre genreForUpdate) {
         String sqlQuery = "UPDATE genres SET genre_name = ? " +
                 "WHERE genre_id = ? ";
-        jdbcTemplate.update(sqlQuery, updatedGenre.getName(), updatedGenre.getId());
-        return updatedGenre;
+        jdbcTemplate.update(sqlQuery, genreForUpdate.getName(), genreForUpdate.getId());
+        return genreForUpdate;
     }
 
     public List<Genre> findGenresOfFilm(long filmId) {

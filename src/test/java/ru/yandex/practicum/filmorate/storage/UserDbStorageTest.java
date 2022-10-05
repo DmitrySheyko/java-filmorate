@@ -5,7 +5,10 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.test.context.jdbc.Sql;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.List;
@@ -13,13 +16,16 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatList;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
 
 @SpringBootTest
 @AutoConfigureTestDatabase
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 @Sql(scripts = "classpath:testUserData.sql")
+@Sql(scripts = "classpath:testFilmData.sql")
 class UserDbStorageTest {
     private final UserDbStorage userDbStorage;
+    private final FilmDbStorage filmDbStorage;
 
     @Test
     public void shouldGetUserById() {
@@ -128,5 +134,17 @@ class UserDbStorageTest {
         List<User> commonFriends = userDbStorage.getListOfCommonFriends(testUser1.getId(), testUser2.getId());
         assertThat(commonFriends.get(0)).isEqualTo(testFriend1);
         assertThat(commonFriends.get(1)).isEqualTo(testFriend2);
+    }
+
+    @Test
+    public void shouldGetListOfRecommendations() {
+        filmDbStorage.addLike(1, 1);
+        filmDbStorage.addLike(3, 1);
+        filmDbStorage.addLike(2, 2);
+        filmDbStorage.addLike(3, 2);
+        List<Film> result = userDbStorage.getRecommendation(1);
+        assertThat(result.get(0).getId()).isEqualTo(2);
+        result = userDbStorage.getRecommendation(2);
+        assertThat(result.get(0).getId()).isEqualTo(1);
     }
 }
