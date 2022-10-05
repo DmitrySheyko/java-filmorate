@@ -70,6 +70,7 @@ public class DirectorService implements Services<Director> {
             log.info("Удален режиссер с id = {}. Всего удалено строк: {}", directorId, rows);
         } else {
             log.error("Что то пошло не так. Удалено строк: {}", rows);
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, String.format("Режиссер с id=%s не найдено.", directorId));
         }
     }
 }
