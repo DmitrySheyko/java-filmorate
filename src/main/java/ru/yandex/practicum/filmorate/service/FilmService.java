@@ -126,7 +126,7 @@ public class FilmService implements Services<Film> {
             }
             List<Film> commonFilms = filmDbStorage.getCommonFilms(userId, friendId);
             log.info("Получен список общих фильмов пользователей user_id=" + userId + " и user_id=" +
-                    friendId + "  не найден.");
+                    friendId + ".");
             return commonFilms;
         } catch (IncorrectResultSizeDataAccessException e) {
             return Collections.emptyList();

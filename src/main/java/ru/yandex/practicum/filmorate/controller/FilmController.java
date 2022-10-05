@@ -81,7 +81,5 @@ public class FilmController implements Controllers<Film> {
     public List<Film> getCommonFilms(@RequestParam int userId, @RequestParam int friendId){
         return filmService.getCommonFilms(userId, friendId);
     }
-
-
 }
 
