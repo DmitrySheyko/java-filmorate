@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -27,12 +28,11 @@ public class DirectorService implements Services<Director> {
     @Override
     public Director getById(int directorId) {
         log.info("Получен запрос на получение режиссера id={}", directorId);
-        Director director = storages.getById(directorId);
-        if (director != null) {
+        try {
+            Director director = storages.getById(directorId);
             return director;
-        } else {
-            log.error("Режиссер с id={} не найден", directorId);
-            throw new ObjectNotFoundException(String.format("Директор id=%s не найден", directorId));
+        } catch (IncorrectResultSizeDataAccessException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, String.format("Режиссер id=%s не найден", directorId));
         }
     }
 
@@ -47,11 +47,10 @@ public class DirectorService implements Services<Director> {
     public Director update(Director updatedDirector) {
         log.info("Получен запрос на обновление данных режиссера id={}", updatedDirector.getId());
         validateDirector(updatedDirector);
-        Director director = storages.update(updatedDirector);
-        if (director != null) {
+        try {
+            Director director = storages.update(updatedDirector);
             return director;
-        } else {
-            log.error("Режиссер с id={} не найден", updatedDirector.getId());
+        } catch (IncorrectResultSizeDataAccessException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, String.format("Режиссер id=%s не найден", updatedDirector.getId()));
         }
     }

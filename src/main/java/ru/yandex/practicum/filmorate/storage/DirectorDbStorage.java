@@ -30,13 +30,9 @@ public class DirectorDbStorage implements Storages<Director> {
 
     @Override
     public Director getById(int directorId) {
-        if (checkIsObjectInStorage(directorId)) {
-            String sqlQuery = "SELECT * " +
-                    "FROM directors WHERE director_id = ?";
-            return jdbcTemplate.queryForObject(sqlQuery, directorMapper, directorId);
-        } else {
-            return null;
-        }
+        String sqlQuery = "SELECT * " +
+                "FROM directors WHERE director_id = ?";
+        return jdbcTemplate.queryForObject(sqlQuery, directorMapper, directorId);
     }
 
     @Override
@@ -54,14 +50,11 @@ public class DirectorDbStorage implements Storages<Director> {
 
     @Override
     public Director update(Director updatedDirector) {
-        if (checkIsObjectInStorage(updatedDirector)) {
-            String sqlQuery = "UPDATE directors SET director_name = ? " +
-                    "WHERE director_id = ? ";
-            jdbcTemplate.update(sqlQuery, updatedDirector.getName(), updatedDirector.getId());
-            return updatedDirector;
-        } else {
-            return null;
-        }
+        getById(updatedDirector.getId());
+        String sqlQuery = "UPDATE directors SET director_name = ? " +
+                "WHERE director_id = ? ";
+        jdbcTemplate.update(sqlQuery, updatedDirector.getName(), updatedDirector.getId());
+        return updatedDirector;
     }
 
     public Set<Director> getDirectorsByFilmId(int filmId) {
