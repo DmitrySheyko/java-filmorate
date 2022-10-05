@@ -64,14 +64,21 @@ public class FilmService implements Services<Film> {
 
     public List<Film> getPopularFilms(int count, int genreId, int year) {
         if (genreId != 0 && year != 0) {
+            log.info("Получен запрос на получение списка из {} фильмов с наибольшим количеством лайков с " +
+                    "сортировкой по жанру c id {} и году выхода фильма {}", count, genreId, year);
             return filmDbStorage.getPopularFilmSortedByGenreAndYear(count, genreId, year);
         }
         if (genreId != 0 && year == 0) {
+            log.info("Получен запрос на получение списка из {} фильмов с наибольшим количеством лайков с " +
+                    "сортировкой по жанру c id {}", count, genreId);
             return filmDbStorage.getPopularFilmSortedByGenre(count, genreId);
         }
         if (genreId == 0 && year != 0) {
+            log.info("Получен запрос на получение списка из {} фильмов с наибольшим количеством лайков с " +
+                    "сортировкой по году выхода фильма {}", count, year);
             return filmDbStorage.getPopularFilmSortedByYear(count, year);
         }
+        log.info("Получен запрос на получение списка из {} фильмов с наибольшим количеством лайков", count);
         return filmDbStorage.getPopularFilms(count);
     }
 

@@ -64,7 +64,6 @@ public class FilmController implements Controllers<Film> {
                                       int genreId,
                                       @RequestParam(defaultValue = "0")
                                       int year) {
-        log.info("Получен запрос на получение списка из {} фильмов с наибольшим количеством лайков", count);
         return filmService.getPopularFilms(count, genreId, year);
     }
 
