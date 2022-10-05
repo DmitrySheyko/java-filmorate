@@ -76,6 +76,9 @@ public class ReviewService implements Services<Review> {
             }
             reviewDbStorage.add(newReview);
             log.info("Отзыв review_id=" + newReview.getReviewId() + " успешно добавлен.");
+            /**
+             typeID=2 - REVIEW, operationID=2 - ADD
+             **/
             feedDbStorage.add(newReview.getReviewId(), 2, 2, newReview.getUserId());
             log.info("Лента событий пользователя user_id=" + newReview.getUserId() + " была обновлена.");
             return newReview;
@@ -93,9 +96,12 @@ public class ReviewService implements Services<Review> {
             reviewDbStorage.update(reviewForUpdate);
             log.info("Отзыв review_id=" + reviewForUpdate.getReviewId() + " успешно обновлен.");
             Review review = getById(reviewForUpdate.getReviewId());
+            /**
+             typeID=2 - REVIEW, operationID=3 - UPDATE
+             **/
             feedDbStorage.add(review.getReviewId(), 2, 3, review.getUserId());
             log.info("Лента событий пользователя user_id=" + reviewForUpdate.getUserId() + " была обновлена.");
-            return reviewForUpdate;
+            return review;
         } catch (IncorrectResultSizeDataAccessException e) {
             String message = "Отзыв review_id=" + reviewForUpdate.getFilmId() + " отсутствует в базе данных.";
             log.error(message);
@@ -172,6 +178,9 @@ public class ReviewService implements Services<Review> {
         Review review = getById(reviewId);
         String message = reviewDbStorage.removeById(reviewId);
         log.info(message);
+        /**
+         typeID=2 - REVIEW, operationID=1 - REMOVE
+         **/
         feedDbStorage.add(review.getReviewId(), 2, 1, review.getUserId());
         log.info("Лента событий пользователя user_id=" + review.getUserId() + " была обновлена.");
         return message;
