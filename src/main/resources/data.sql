@@ -1,32 +1,24 @@
 INSERT INTO ratings (rating_name)
-VALUES ('G');
-
-INSERT INTO ratings (rating_name)
-VALUES ('PG');
-
-INSERT INTO ratings (rating_name)
-VALUES ('PG-13');
-
-INSERT INTO ratings (rating_name)
-VALUES ('R');
-
-INSERT INTO ratings (rating_name)
-VALUES ('NC-17');
+VALUES ('G'),
+       ('PG'),
+       ('PG-13'),
+       ('R'),
+       ('NC-17');
 
 INSERT INTO genres (genre_name)
-VALUES ('Комедия');
+VALUES ('Комедия'),
+       ('Драма'),
+       ('Мультфильм'),
+       ('Документальный'),
+       ('Вестерн'),
+       ('Ужасы');
 
-INSERT INTO genres (genre_name)
-VALUES ('Драма');
+INSERT INTO event_types (event_type)
+VALUES ('LIKE'),
+       ('REVIEW'),
+       ('FRIEND');
 
-INSERT INTO genres (genre_name)
-VALUES ('Мультфильм');
-
-INSERT INTO genres (genre_name)
-VALUES ('Документальный');
-
-INSERT INTO genres (genre_name)
-VALUES ('Вестерн');
-
-INSERT INTO genres (genre_name)
-VALUES ('Ужасы');
+INSERT INTO operations (operation_type)
+VALUES ('REMOVE'),
+       ('ADD'),
+       ('UPDATE');

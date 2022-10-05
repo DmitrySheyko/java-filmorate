@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.storage.FeedDbStorage;
 import ru.yandex.practicum.filmorate.storage.FilmDbStorage;
 
 import java.time.*;
@@ -16,15 +17,18 @@ import java.util.List;
 @Slf4j
 @Service
 public class FilmService implements Services<Film> {
+
     private final FilmDbStorage filmDbStorage;
+    private final FeedDbStorage feedDbStorage;
     private final DateTimeFormatter dateTimeFormatter;
     private final static Instant MIN_RELEASE_DATA = Instant.from(ZonedDateTime.of(LocalDateTime.of(1895, 12,
             28, 0, 0), ZoneId.of("Europe/Moscow")));
 
     @Autowired
-    public FilmService(@Qualifier("filmDbStorage") FilmDbStorage filmDbStorage) {
+    public FilmService(@Qualifier("filmDbStorage") FilmDbStorage filmDbStorage, FeedDbStorage feedDbStorage) {
         this.filmDbStorage = filmDbStorage;
         dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        this.feedDbStorage = feedDbStorage;
     }
 
     @Override
@@ -53,15 +57,35 @@ public class FilmService implements Services<Film> {
         return null;
     }
 
-    public void addLike(int filmId, int userId) {
+    public void addLike(Integer filmId, Integer userId) {
         filmDbStorage.addLike(filmId, userId);
+        feedDbStorage.add(filmId, FeedService.eventTypeLike, FeedService.operationAdd, userId);
+        log.info("Лента событий пользователя user_id=" + userId + " была обновлена.");
     }
 
-    public void deleteLike(int filmId, int userId) {
+    public void deleteLike(Integer filmId, Integer userId) {
         filmDbStorage.deleteLike(filmId, userId);
+        feedDbStorage.add(filmId, FeedService.eventTypeLike, FeedService.operationRemove, userId);
+        log.info("Лента событий пользователя user_id=" + userId + " была обновлена.");
     }
 
-    public List<Film> getPopularFilms(int count) {
+    public List<Film> getPopularFilms(int count, int genreId, int year) {
+        if (genreId != 0 && year != 0) {
+            log.info("Получен запрос на получение списка из {} фильмов с наибольшим количеством лайков с " +
+                    "сортировкой по жанру c id {} и году выхода фильма {}", count, genreId, year);
+            return filmDbStorage.getPopularFilmSortedByGenreAndYear(count, genreId, year);
+        }
+        if (genreId != 0 && year == 0) {
+            log.info("Получен запрос на получение списка из {} фильмов с наибольшим количеством лайков с " +
+                    "сортировкой по жанру c id {}", count, genreId);
+            return filmDbStorage.getPopularFilmSortedByGenre(count, genreId);
+        }
+        if (genreId == 0 && year != 0) {
+            log.info("Получен запрос на получение списка из {} фильмов с наибольшим количеством лайков с " +
+                    "сортировкой по году выхода фильма {}", count, year);
+            return filmDbStorage.getPopularFilmSortedByYear(count, year);
+        }
+        log.info("Получен запрос на получение списка из {} фильмов с наибольшим количеством лайков", count);
         return filmDbStorage.getPopularFilms(count);
     }
 
