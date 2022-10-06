@@ -18,7 +18,7 @@ import static org.assertj.core.api.Assertions.assertThatList;
 @SpringBootTest
 @AutoConfigureTestDatabase
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
-@Sql(scripts = "classpath:testFilmData.sql")
+@Sql(scripts = "classpath:testUserAndFilmData.sql")
 class FilmDbStorageTest {
     private final FilmDbStorage filmDbStorage;
 
