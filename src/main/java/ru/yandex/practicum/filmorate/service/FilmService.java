@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exceptions.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
@@ -90,7 +91,7 @@ public class FilmService implements Services<Film> {
         return filmDbStorage.getPopularFilms(count);
     }
 
-    public List<Film> getFilmsByDirector (int directorId, String sortBy) {
+    public List<Film> getFilmsByDirector(int directorId, String sortBy) {
         if (sortBy.equals("year") || sortBy.equals("likes")) {
             log.info("Сервис: Получен запрос на получение списка фильмов по режиссеру: {} с сортировкой по: {}", directorId, sortBy);
             return filmDbStorage.getFilmsByDirector(directorId, sortBy);
@@ -107,6 +108,27 @@ public class FilmService implements Services<Film> {
             return filmDbStorage.searchFilmByNameOrDirector(query, by);
         } else {
             log.error("Получен некорректный запрос на поиск фильмов. Параметры: {} не поддерживаются сервисом. ", by);
+            return Collections.emptyList();
+        }
+    }
+
+    public List<Film> getCommonFilms(int userId, int friendId) {
+        try {
+            if (!filmDbStorage.checkIsObjectInStorage(userId)) {
+                String message = "Пользователь user_id=" + userId + " не найден.";
+                log.warn(message);
+                throw new ObjectNotFoundException(message);
+            }
+            if (!filmDbStorage.checkIsObjectInStorage(friendId)) {
+                String message = "Пользователь user_id=" + userId + " не найден.";
+                log.warn(message);
+                throw new ObjectNotFoundException(message);
+            }
+            List<Film> commonFilms = filmDbStorage.getCommonFilms(userId, friendId);
+            log.info("Получен список общих фильмов пользователей user_id=" + userId + " и user_id=" +
+                    friendId + ".");
+            return commonFilms;
+        } catch (IncorrectResultSizeDataAccessException e) {
             return Collections.emptyList();
         }
     }

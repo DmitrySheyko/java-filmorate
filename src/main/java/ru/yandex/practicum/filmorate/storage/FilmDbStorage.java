@@ -199,14 +199,14 @@ public class FilmDbStorage implements Storages<Film> {
 
     public List<Film> searchFilmByNameOrDirector(String query, List<String> by) {
         String selectQuery;
-        if (by.size()==1 && by.contains("title")) {
+        if (by.size() == 1 && by.contains("title")) {
             selectQuery = "SELECT * FROM films f " +
                     "LEFT JOIN films_likes fl on f.film_id = fl.film_id " +
-                    "WHERE UPPER(f.film_name) LIKE UPPER(?) "  +
+                    "WHERE UPPER(f.film_name) LIKE UPPER(?) " +
                     "GROUP BY f.film_id " +
                     "ORDER BY COUNT(fl.user_id) DESC ";
             return jdbcTemplate.query(selectQuery, filmMapper, "%" + query + "%");
-        } else if (by.size()==1 && by.contains("director")) {
+        } else if (by.size() == 1 && by.contains("director")) {
             selectQuery = "SELECT f.*, d.director_name FROM films f " +
                     "INNER JOIN films_directors fd " +
                     "ON fd.film_id = f.film_id " +
@@ -217,7 +217,7 @@ public class FilmDbStorage implements Storages<Film> {
                     "GROUP BY f.film_id " +
                     "ORDER BY COUNT(fl.user_id) DESC ";
             return jdbcTemplate.query(selectQuery, filmMapper, "%" + query + "%");
-        } else if (by.size()==2 && by.contains("title") && by.contains("director")) {
+        } else if (by.size() == 2 && by.contains("title") && by.contains("director")) {
             selectQuery = "SELECT f.*, d.director_name FROM films f " +
                     "LEFT JOIN films_directors fd " +
                     "ON fd.film_id = f.film_id " +
@@ -232,8 +232,19 @@ public class FilmDbStorage implements Storages<Film> {
 
     }
 
+    public List<Film> getCommonFilms(int userId, int friendId) {
+        String sqlQuery = "SELECT f.* " +
+                "FROM films_likes AS fl1 INNER JOIN films_likes AS fl2 ON fl1.film_id = fl2.film_id " +
+                "LEFT JOIN films_likes AS fl3 ON fl1.film_id = fl3.film_id " +
+                "LEFT JOIN films AS f ON fl1.film_id = f.film_id " +
+                "WHERE fl1.user_id = ? " +
+                "AND fl2.user_id = ?  " +
+                "GROUP BY fl3.film_id, f.film_id " +
+                "ORDER BY COUNT (fl3.user_id) DESC;";
+        return jdbcTemplate.query(sqlQuery, filmMapper, userId, friendId);
+    }
 
-        @Override
+    @Override
     public boolean checkIsObjectInStorage(Film film) {
         String sqlQuery = "SELECT EXISTS (SELECT 1 FROM films WHERE film_id = ?)";
         return Boolean.TRUE.equals(jdbcTemplate.queryForObject(sqlQuery, Boolean.class, film.getId()));
