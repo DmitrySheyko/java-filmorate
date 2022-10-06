@@ -27,6 +27,10 @@ INSERT INTO users (user_name, login, email, birth_day)
 VALUES ('TestUserName4', 'TestUserLogin4', 'TestUserEmail4@ru.ru', '2014-10-14');
 
 DELETE
+FROM users
+WHERE user_id > 4;
+
+DELETE
 FROM films_genres;
 
 DELETE

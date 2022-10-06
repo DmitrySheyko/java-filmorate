@@ -112,7 +112,8 @@ public class ReviewService implements Services<Review> {
             throw new ObjectNotFoundException(message);
         }
         if (reviewDbStorage.checkIsReviewLikedByUser(reviewId, userId)) {
-            String message = "Пользователь user_id=" + userId + " уже поставил лайк отзыву review_id= " + reviewId + ".";
+            String message = "Пользователь user_id=" + userId + " уже поставил лайк отзыву review_id= " +
+                    reviewId + ".";
             log.error(message);
             throw new SQLException(message);
         }
@@ -142,7 +143,8 @@ public class ReviewService implements Services<Review> {
             throw new ObjectNotFoundException(message);
         }
         if (reviewDbStorage.checkIsReviewDislikedByUser(reviewId, userId)) {
-            String message = "Пользователь user_id=" + userId + " уже поставил дизлайк отзыву review_id= " + reviewId + ".";
+            String message = "Пользователь user_id=" + userId + " уже поставил дизлайк отзыву review_id= " +
+                    reviewId + ".";
             log.error(message);
             throw new SQLException(message);
         }
@@ -179,5 +181,4 @@ public class ReviewService implements Services<Review> {
         log.info("Лента событий пользователя user_id=" + review.getUserId() + " была обновлена.");
         return message;
     }
-
 }

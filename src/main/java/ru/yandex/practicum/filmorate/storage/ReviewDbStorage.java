@@ -150,5 +150,4 @@ public class ReviewDbStorage implements Storages<Review> {
         String sqlQuery = "SELECT EXISTS (SELECT 1 FROM users WHERE user_id = ?)";
         return Boolean.TRUE.equals(jdbcTemplate.queryForObject(sqlQuery, Boolean.class, userId));
     }
-
 }

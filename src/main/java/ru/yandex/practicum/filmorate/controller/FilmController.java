@@ -19,41 +19,35 @@ public class FilmController implements Controllers<Film> {
     @Override
     @GetMapping
     public List<Film> getAll() {
-        log.info("Получен запрос на получение списка фильмов");
         return filmService.getAll();
     }
 
     @Override
     @GetMapping("{id}")
     public Film getById(@PathVariable("id") int filmId) {
-        log.info("Получен запрос на получение фильма id={}", filmId);
         return filmService.getById(filmId);
     }
 
     @Override
     @PostMapping
     public Film add(@RequestBody Film newFilm) {
-        log.info("Получен запрос на добавление нового фильма");
         return filmService.add(newFilm);
     }
 
     @Override
     @PutMapping
-    public Film update(@RequestBody Film updatedFilm) {
-        log.info("Получен запрос на обновление фильма id={}", updatedFilm.getId());
-        return filmService.update(updatedFilm);
+    public Film update(@RequestBody Film filmForUpdate) {
+        return filmService.update(filmForUpdate);
     }
 
     @PutMapping("{id}/like/{userId}")
-    public void addLike(@PathVariable("id") int filmId, @PathVariable int userId) {
-        log.info("Получен запрос на добавление лайка фильму id={} от пользователя id={}", filmId, userId);
-        filmService.addLike(filmId, userId);
+    public String addLike(@PathVariable("id") int filmId, @PathVariable int userId) {
+        return filmService.addLike(filmId, userId);
     }
 
     @DeleteMapping("{id}/like/{userId}")
-    public void deleteLike(@PathVariable("id") int filmId, @PathVariable int userId) {
-        log.info("Получен запрос на удаление лайка фильму id={} от пользователя id={}", filmId, userId);
-        filmService.deleteLike(filmId, userId);
+    public String deleteLike(@PathVariable("id") int filmId, @PathVariable int userId) {
+        return filmService.deleteLike(filmId, userId);
     }
 
     @GetMapping("popular")
@@ -78,12 +72,12 @@ public class FilmController implements Controllers<Film> {
     }
 
     @DeleteMapping("/{id}")
-    public String deleteUserById(@PathVariable("id") int filmId){
+    public String deleteUserById(@PathVariable("id") int filmId) {
         return filmService.deleteFilmById(filmId);
     }
 
     @GetMapping("/common")
-    public List<Film> getCommonFilms(@RequestParam int userId, @RequestParam int friendId){
+    public List<Film> getCommonFilms(@RequestParam int userId, @RequestParam int friendId) {
         return filmService.getCommonFilms(userId, friendId);
     }
 }
