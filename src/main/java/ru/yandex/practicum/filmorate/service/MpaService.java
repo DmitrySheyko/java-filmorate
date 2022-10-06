@@ -42,15 +42,9 @@ public class MpaService implements Services<Mpa> {
 
     @Override
     public Mpa add(Mpa newRating) {
-        try {
-            mpaDbStorage.add(newRating);
-            log.info("Рейтинг rating_id=" + newRating + " успешно добавлен.");
-            return newRating;
-        } catch (IncorrectResultSizeDataAccessException e) {
-            String message = "Рейтинг rating_id=" + newRating.getId() + " уже был добавлен ранее.";
-            log.error(message);
-            throw new ValidationException(message);
-        }
+        mpaDbStorage.add(newRating);
+        log.info("Рейтинг rating_id=" + newRating + " успешно добавлен.");
+        return newRating;
     }
 
     @Override

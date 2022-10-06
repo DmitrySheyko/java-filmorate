@@ -42,15 +42,9 @@ public class GenreService implements Services<Genre> {
 
     @Override
     public Genre add(Genre newGenre) {
-        try {
-            genreDbStorage.add(newGenre);
-            log.info("Жанр genre_id=" + newGenre + " успешно добавлен.");
-            return newGenre;
-        } catch (IncorrectResultSizeDataAccessException e) {
-            String message = "Жанр genre_id=" + newGenre.getId() + " уже был добавлен ранее.";
-            log.error(message);
-            throw new ValidationException(message);
-        }
+        genreDbStorage.add(newGenre);
+        log.info("Жанр genre_id=" + newGenre + " успешно добавлен.");
+        return newGenre;
     }
 
     @Override

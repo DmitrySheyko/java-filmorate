@@ -53,20 +53,14 @@ public class UserService implements Services<User> {
     }
 
     public User add(User newUser) {
-        try {
-            if (!checkIsUserDataCorrect(newUser)) {
-                String message = "Данные пользователя user_id=" + newUser.getId() + " содержат некорректную информцию.";
-                log.error(message);
-                throw new ValidationException(message);
-            }
-            userStorage.add(newUser);
-            log.info("Пользователь user_id=" + newUser.getId() + " успешно добавлен.");
-            return newUser;
-        } catch (IncorrectResultSizeDataAccessException e) {
-            String message = "Пользователь user_id=" + newUser.getId() + " уже был добавлен.";
+        if (!checkIsUserDataCorrect(newUser)) {
+            String message = "Данные пользователя user_id=" + newUser.getId() + " содержат некорректную информцию.";
             log.error(message);
             throw new ValidationException(message);
         }
+        userStorage.add(newUser);
+        log.info("Пользователь user_id=" + newUser.getId() + " успешно добавлен.");
+        return newUser;
     }
 
     public User update(User userForUpdate) {
@@ -102,6 +96,11 @@ public class UserService implements Services<User> {
                 String message = "Пользователь user_id=" + friendId + " отсутствует в базе данных.";
                 log.error(message);
                 throw new ObjectNotFoundException(message);
+            }
+            if (userId == friendId) {
+                String message = "Добавление в друзья самого себя не поддерживается.";
+                log.error(message);
+                throw new ValidationException(message);
             }
             String message = userStorage.addFriend(userId, friendId);
             log.info(message);

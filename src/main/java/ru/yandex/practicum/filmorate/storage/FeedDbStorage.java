@@ -57,4 +57,5 @@ public class FeedDbStorage {
                         "WHERE f.event_id=?";
         return jdbcTemplate.queryForObject(sqlQuery, feedMapper, feedId);
     }
+
 }

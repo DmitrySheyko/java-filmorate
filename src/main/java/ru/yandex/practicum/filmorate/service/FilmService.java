@@ -63,20 +63,14 @@ public class FilmService implements Services<Film> {
 
     @Override
     public Film add(Film newFilm) {
-        try {
-            if (!checkIsFilmDataCorrect(newFilm)) {
-                String message = "Данные фильма film_id=" + newFilm.getId() + " содержат некорректную информцию.";
-                log.error(message);
-                throw new ValidationException(message);
-            }
-            filmDbStorage.add(newFilm);
-            log.info("Фильм film_id=" + newFilm.getId() + " успешно добавлен.");
-            return newFilm;
-        } catch (IncorrectResultSizeDataAccessException e) {
-            String message = "Фильм film_id=" + newFilm.getId() + " уже был добавлен.";
+        if (!checkIsFilmDataCorrect(newFilm)) {
+            String message = "Данные фильма film_id=" + newFilm.getId() + " содержат некорректную информцию.";
             log.error(message);
             throw new ValidationException(message);
         }
+        filmDbStorage.add(newFilm);
+        log.info("Фильм film_id=" + newFilm.getId() + " успешно добавлен.");
+        return newFilm;
     }
 
     @Override
@@ -116,7 +110,7 @@ public class FilmService implements Services<Film> {
         if (filmDbStorage.checkIsFilmHasLikeFromUser(filmId, userId)) {
             String message = "Пользователь user_id=" + userId + " уже поставил лайк фильму film_id=" + filmId + ".";
             log.error(message);
-            throw new ValidationException(message);
+            return message;
         }
         String message = filmDbStorage.addLike(filmId, userId);
         log.info(message);

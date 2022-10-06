@@ -31,6 +31,7 @@ public class DirectorService implements Services<Director> {
             Director director = storages.getById(directorId);
             return director;
         } catch (IncorrectResultSizeDataAccessException e) {
+            log.warn("Режиссер id=%s не найден", directorId);
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, String.format("Режиссер id=%s не найден",
                     directorId));
         }
@@ -51,6 +52,7 @@ public class DirectorService implements Services<Director> {
             Director director = storages.update(updatedDirector);
             return director;
         } catch (IncorrectResultSizeDataAccessException e) {
+            log.warn("Режиссер id=%s не найден", updatedDirector.getId());
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, String.format("Режиссер id=%s не найден",
                     updatedDirector.getId()));
         }
