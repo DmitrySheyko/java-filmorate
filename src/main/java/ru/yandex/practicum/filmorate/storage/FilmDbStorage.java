@@ -254,4 +254,10 @@ public class FilmDbStorage implements Storages<Film> {
         String sqlQuery = "SELECT EXISTS (SELECT 1 FROM films_likes WHERE film_id = ? AND user_id = ?)";
         return Boolean.TRUE.equals(jdbcTemplate.queryForObject(sqlQuery, Boolean.class, filmId, userId));
     }
+
+    public String deleteFilmById(Integer filmId) {
+        String sqlQuery = "DELETE FROM FILMS WHERE film_id = ? ";
+        jdbcTemplate.update(sqlQuery, filmId);
+        return "Фильм film_id=" + filmId + " успешно удален.";
+    }
 }

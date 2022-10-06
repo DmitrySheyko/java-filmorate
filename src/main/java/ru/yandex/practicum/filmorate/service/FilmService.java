@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exceptions.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.FeedDbStorage;
@@ -123,5 +124,16 @@ public class FilmService implements Services<Film> {
     private Instant getInstance(String time) {
         return Instant.from(ZonedDateTime.of(LocalDate.parse(time, dateTimeFormatter),
                 LocalTime.of(0, 0), ZoneId.of("Europe/Moscow")));
+    }
+
+    public String deleteFilmById (Integer filmId){
+        if (! filmDbStorage.checkIsObjectInStorage(filmId)){
+            String message = "Фильм film_id=" + filmId+" не найден.";
+            log.warn(message);
+            throw new ObjectNotFoundException(message);
+        }
+        String message = filmDbStorage.deleteFilmById(filmId);
+        log.info(message);
+        return message;
     }
 }
