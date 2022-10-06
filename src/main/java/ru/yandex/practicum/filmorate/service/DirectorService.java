@@ -6,7 +6,6 @@ import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
-import ru.yandex.practicum.filmorate.exceptions.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.storage.DirectorDbStorage;
@@ -32,7 +31,8 @@ public class DirectorService implements Services<Director> {
             Director director = storages.getById(directorId);
             return director;
         } catch (IncorrectResultSizeDataAccessException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, String.format("Режиссер id=%s не найден", directorId));
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, String.format("Режиссер id=%s не найден",
+                    directorId));
         }
     }
 
@@ -51,7 +51,8 @@ public class DirectorService implements Services<Director> {
             Director director = storages.update(updatedDirector);
             return director;
         } catch (IncorrectResultSizeDataAccessException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, String.format("Режиссер id=%s не найден", updatedDirector.getId()));
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, String.format("Режиссер id=%s не найден",
+                    updatedDirector.getId()));
         }
     }
 
@@ -59,7 +60,8 @@ public class DirectorService implements Services<Director> {
 
         if (director.getName() == null || director.getName().isEmpty() || director.getName().isBlank()) {
             log.error("Указано некорректное имя режиссера");
-            throw new ValidationException(String.format("Указано некорректное имя режиссера id = :" + director.getId()));
+            throw new ValidationException(String.format("Указано некорректное имя режиссера id = :" +
+                    director.getId()));
         }
     }
 
@@ -70,7 +72,8 @@ public class DirectorService implements Services<Director> {
             log.info("Удален режиссер с id = {}. Всего удалено строк: {}", directorId, rows);
         } else {
             log.error("Что то пошло не так. Удалено строк: {}", rows);
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, String.format("Режиссер с id=%s не найдено.", directorId));
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, String.format("Режиссер с id=%s не найдено.",
+                    directorId));
         }
     }
 }

@@ -65,5 +65,4 @@ public class ReviewController {
     public String removeDislikeLikeById(@PathVariable Integer id, @PathVariable Integer userId) {
         return reviewService.removeDislikeById(id, userId);
     }
-
 }

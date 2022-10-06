@@ -15,7 +15,6 @@ import java.util.List;
 @Slf4j
 @Service
 @AllArgsConstructor
-
 public class MpaService implements Services<Mpa> {
     private final Storages<Mpa> mpaDbStorage;
 

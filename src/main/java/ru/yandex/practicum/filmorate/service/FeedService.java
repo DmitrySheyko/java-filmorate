@@ -42,5 +42,4 @@ public class FeedService {
             return Collections.emptyList();
         }
     }
-
 }

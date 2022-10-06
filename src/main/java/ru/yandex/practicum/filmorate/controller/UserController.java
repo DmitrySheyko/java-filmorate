@@ -73,7 +73,6 @@ public class UserController implements Controllers<User> {
         return userService.deleteUserById(userId);
     }
 
-    // Дмимтрий add-recommendation
     @GetMapping("{id}/recommendations")
     @ResponseBody
     public List<Film> getRecommendation(@PathVariable("id") int userId) {

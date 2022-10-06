@@ -29,8 +29,8 @@ public class FilmService implements Services<Film> {
             28, 0, 0), ZoneId.of("Europe/Moscow")));
 
     @Autowired
-//    public FilmService(@Qualifier("filmDbStorage") FilmDbStorage filmDbStorage, FeedDbStorage feedDbStorage) {
-    public FilmService(@Qualifier("filmDbStorage") FilmDbStorage filmDbStorage, UserDbStorage userDbStorage, FeedDbStorage feedDbStorage) {
+    public FilmService(@Qualifier("filmDbStorage") FilmDbStorage filmDbStorage, UserDbStorage userDbStorage,
+                       FeedDbStorage feedDbStorage) {
         this.filmDbStorage = filmDbStorage;
         this.userDbStorage = userDbStorage;
         dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
@@ -44,7 +44,6 @@ public class FilmService implements Services<Film> {
             log.info("Получен список всех фильмов");
             return films;
         } catch (IncorrectResultSizeDataAccessException e) {
-            //если в базе нет фильмов - пустой список
             return Collections.emptyList();
         }
     }
@@ -103,10 +102,6 @@ public class FilmService implements Services<Film> {
         }
     }
 
-//    public void addLike(Integer filmId, Integer userId) {
-//        filmDbStorage.addLike(filmId, userId);
-//        feedDbStorage.add(filmId, FeedService.eventTypeLike, FeedService.operationAdd, userId);
-//        log.info("Лента событий пользователя user_id=" + userId + " была обновлена.");
     public String addLike(Integer filmId, Integer userId) {
         if (!filmDbStorage.checkIsObjectInStorage(filmId)) {
             String message = "Фильм film_id=" + filmId + " отсутствует в базе данных.";
@@ -130,10 +125,6 @@ public class FilmService implements Services<Film> {
         return message;
     }
 
-//    public void deleteLike(Integer filmId, Integer userId) {
-//        filmDbStorage.deleteLike(filmId, userId);
-//        feedDbStorage.add(filmId, FeedService.eventTypeLike, FeedService.operationRemove, userId);
-//        log.info("Лента событий пользователя user_id=" + userId + " была обновлена.");
     public String deleteLike(Integer filmId, Integer userId) {
         if (!filmDbStorage.checkIsObjectInStorage(filmId)) {
             String message = "Фильм film_id=" + filmId + " отсутствует в базе данных.";
@@ -175,22 +166,16 @@ public class FilmService implements Services<Film> {
         }
         log.info("Получен запрос на получение списка из {} фильмов с наибольшим количеством лайков", count);
         return filmDbStorage.getPopularFilms(count);
-//    public List<Film> getPopularFilms(int count) {
-//        try {
-//            List<Film> films = filmDbStorage.getPopularFilms(count);
-//            log.info("Получен список популярных фильмов");
-//            return films;
-//        } catch (IncorrectResultSizeDataAccessException e) {
-//            return Collections.emptyList();
-//        }
     }
 
-    public List<Film> getFilmsByDirector (int directorId, String sortBy) {
+    public List<Film> getFilmsByDirector(int directorId, String sortBy) {
         if (sortBy.equals("year") || sortBy.equals("likes")) {
-            log.info("Сервис: Получен запрос на получение списка фильмов по режиссеру: {} с сортировкой по: {}", directorId, sortBy);
+            log.info("Сервис: Получен запрос на получение списка фильмов по режиссеру: {} с сортировкой по: {}",
+                    directorId, sortBy);
             return filmDbStorage.getFilmsByDirector(directorId, sortBy);
         } else {
-            log.error("Сервис: Получен некорректный запрос на получение списка фильмов по режиссеру: {} с сортировкой по: {}. " +
+            log.error("Сервис: Получен некорректный запрос на получение списка фильмов по режиссеру: {} " +
+                    "с сортировкой по: {}. " +
                     "Такие параметры не поддерживаются", directorId, sortBy);
             return Collections.emptyList();
         }
@@ -242,9 +227,9 @@ public class FilmService implements Services<Film> {
                 LocalTime.of(0, 0), ZoneId.of("Europe/Moscow")));
     }
 
-    public String deleteFilmById (Integer filmId){
-        if (! filmDbStorage.checkIsObjectInStorage(filmId)){
-            String message = "Фильм film_id=" + filmId+" не найден.";
+    public String deleteFilmById(Integer filmId) {
+        if (!filmDbStorage.checkIsObjectInStorage(filmId)) {
+            String message = "Фильм film_id=" + filmId + " не найден.";
             log.warn(message);
             throw new ObjectNotFoundException(message);
         }

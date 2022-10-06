@@ -144,7 +144,6 @@ public class FilmDbStorage implements Storages<Film> {
                 "GROUP BY  f.film_id, fg.genre_id " +
                 "ORDER BY COUNT(fl.user_id) DESC " +
                 "LIMIT ?";
-
         return jdbcTemplate.query(sqlQuery, filmMapper, genreId, count);
     }
 
@@ -156,7 +155,6 @@ public class FilmDbStorage implements Storages<Film> {
                 "GROUP BY  f.film_id, fg.genre_id " +
                 "ORDER BY COUNT(fl.user_id) DESC " +
                 "LIMIT ?";
-
         return jdbcTemplate.query(sqlQuery, filmMapper, genreId, year, count);
     }
 
@@ -235,7 +233,7 @@ public class FilmDbStorage implements Storages<Film> {
         return jdbcTemplate.query(sqlQuery, filmMapper, userId, friendId);
     }
 
-        @Override
+    @Override
     public boolean checkIsObjectInStorage(Film film) {
         String sqlQuery = "SELECT EXISTS (SELECT 1 FROM films WHERE film_id = ?)";
         return Boolean.TRUE.equals(jdbcTemplate.queryForObject(sqlQuery, Boolean.class, film.getId()));

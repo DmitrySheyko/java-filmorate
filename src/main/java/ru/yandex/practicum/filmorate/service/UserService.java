@@ -36,7 +36,6 @@ public class UserService implements Services<User> {
             log.info("Получен список всех пользователей");
             return users;
         } catch (IncorrectResultSizeDataAccessException e) {
-            //если в базе нет фильмов - пустой список
             return Collections.emptyList();
         }
     }
@@ -92,10 +91,6 @@ public class UserService implements Services<User> {
         }
     }
 
-    //    public void addFriend(Integer userId, Integer friendId) {
-//        userStorage.addFriend(userId, friendId);
-//        feedDbStorage.add(friendId, FeedService.eventTypeFriend, FeedService.operationAdd, userId);
-//        log.info("Лента событий пользователя user_id=" + userId + " была обновлена.");
     public String addFriend(Integer userId, Integer friendId) {
         try {
             if (!userStorage.checkIsObjectInStorage(userId)) {
@@ -121,10 +116,6 @@ public class UserService implements Services<User> {
         }
     }
 
-    //    public void deleteFriend(Integer userId, Integer friendId) {
-//        userStorage.deleteFriend(userId, friendId);
-//        feedDbStorage.add(friendId, FeedService.eventTypeFriend, FeedService.operationRemove, userId);
-//        log.info("Лента событий пользователя user_id=" + userId + " была обновлена.");
     public String deleteFriend(Integer userId, Integer friendId) {
         try {
             if (!userStorage.checkIsObjectInStorage(userId)) {
@@ -152,6 +143,11 @@ public class UserService implements Services<User> {
 
     public List<User> getListOfFriends(int userId) {
         try {
+            if (!userStorage.checkIsObjectInStorage(userId)) {
+                String message = "Пользователь user_id=" + userId + " отсутствует в базе данных.";
+                log.error(message);
+                throw new ObjectNotFoundException(message);
+            }
             List<User> friends = userStorage.getListOfFriends(userId);
             log.info("Получен список друзей пользователя user_id=" + userId + ".");
             return friends;
@@ -189,9 +185,9 @@ public class UserService implements Services<User> {
                 LocalTime.of(0, 0), ZoneId.of("Europe/Moscow")));
     }
 
-    public String deleteUserById (Integer userId){
-        if (! userStorage.checkIsObjectInStorage(userId)){
-            String message = "Пользователь user_id=" + userId+" не найден.";
+    public String deleteUserById(Integer userId) {
+        if (!userStorage.checkIsObjectInStorage(userId)) {
+            String message = "Пользователь user_id=" + userId + " не найден.";
             log.warn(message);
             throw new ObjectNotFoundException(message);
         }
@@ -199,6 +195,7 @@ public class UserService implements Services<User> {
         log.info(message);
         return message;
     }
+
     public List<Film> getRecommendation(int userId) {
         try {
             if (!userStorage.checkIsObjectInStorage(userId)) {

@@ -24,7 +24,6 @@ public class GenreService implements Services<Genre> {
             log.info("Получен список жанров");
             return genres;
         } catch (IncorrectResultSizeDataAccessException e) {
-            //если в базе нет жанров - пустой список
             return Collections.emptyList();
         }
     }
