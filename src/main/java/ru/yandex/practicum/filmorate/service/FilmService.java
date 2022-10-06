@@ -206,9 +206,26 @@ public class FilmService implements Services<Film> {
         }
     }
 
-//    public List<Film> getFilmsByDirector(int directorId, String sortBy) {
-//        return filmDbStorage.getFilmsByDirector(directorId, sortBy);
-//    }
+    public List<Film> getCommonFilms(int userId, int friendId) {
+        try {
+            if (!filmDbStorage.checkIsObjectInStorage(userId)) {
+                String message = "Пользователь user_id=" + userId + " не найден.";
+                log.warn(message);
+                throw new ObjectNotFoundException(message);
+            }
+            if (!filmDbStorage.checkIsObjectInStorage(friendId)) {
+                String message = "Пользователь user_id=" + userId + " не найден.";
+                log.warn(message);
+                throw new ObjectNotFoundException(message);
+            }
+            List<Film> commonFilms = filmDbStorage.getCommonFilms(userId, friendId);
+            log.info("Получен список общих фильмов пользователей user_id=" + userId + " и user_id=" +
+                    friendId + ".");
+            return commonFilms;
+        } catch (IncorrectResultSizeDataAccessException e) {
+            return Collections.emptyList();
+        }
+    }
 
     public boolean checkIsFilmDataCorrect(Film newFilm) {
         if (getInstance(newFilm.getReleaseDate()).isBefore(MIN_RELEASE_DATA)) {
@@ -223,5 +240,16 @@ public class FilmService implements Services<Film> {
     private Instant getInstance(String time) {
         return Instant.from(ZonedDateTime.of(LocalDate.parse(time, dateTimeFormatter),
                 LocalTime.of(0, 0), ZoneId.of("Europe/Moscow")));
+    }
+
+    public String deleteFilmById (Integer filmId){
+        if (! filmDbStorage.checkIsObjectInStorage(filmId)){
+            String message = "Фильм film_id=" + filmId+" не найден.";
+            log.warn(message);
+            throw new ObjectNotFoundException(message);
+        }
+        String message = filmDbStorage.deleteFilmById(filmId);
+        log.info(message);
+        return message;
     }
 }

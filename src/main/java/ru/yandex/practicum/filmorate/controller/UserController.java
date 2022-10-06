@@ -68,6 +68,11 @@ public class UserController implements Controllers<User> {
         return feedService.getByUserId(userId);
     }
 
+    @DeleteMapping("/{id}")
+    public String deleteUserById(@PathVariable("id") int userId){
+        return userService.deleteUserById(userId);
+    }
+
     // Дмимтрий add-recommendation
     @GetMapping("{id}/recommendations")
     @ResponseBody

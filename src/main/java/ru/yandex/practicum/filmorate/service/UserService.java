@@ -189,6 +189,16 @@ public class UserService implements Services<User> {
                 LocalTime.of(0, 0), ZoneId.of("Europe/Moscow")));
     }
 
+    public String deleteUserById (Integer userId){
+        if (! userStorage.checkIsObjectInStorage(userId)){
+            String message = "Пользователь user_id=" + userId+" не найден.";
+            log.warn(message);
+            throw new ObjectNotFoundException(message);
+        }
+        String message = userStorage.deleteUserById(userId);
+        log.info(message);
+        return message;
+    }
     public List<Film> getRecommendation(int userId) {
         try {
             if (!userStorage.checkIsObjectInStorage(userId)) {

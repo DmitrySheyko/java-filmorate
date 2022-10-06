@@ -223,7 +223,19 @@ public class FilmDbStorage implements Storages<Film> {
         } else return Collections.emptyList();
     }
 
-    @Override
+    public List<Film> getCommonFilms(int userId, int friendId) {
+        String sqlQuery = "SELECT f.* " +
+                "FROM films_likes AS fl1 INNER JOIN films_likes AS fl2 ON fl1.film_id = fl2.film_id " +
+                "LEFT JOIN films_likes AS fl3 ON fl1.film_id = fl3.film_id " +
+                "LEFT JOIN films AS f ON fl1.film_id = f.film_id " +
+                "WHERE fl1.user_id = ? " +
+                "AND fl2.user_id = ?  " +
+                "GROUP BY fl3.film_id, f.film_id " +
+                "ORDER BY COUNT (fl3.user_id) DESC;";
+        return jdbcTemplate.query(sqlQuery, filmMapper, userId, friendId);
+    }
+
+        @Override
     public boolean checkIsObjectInStorage(Film film) {
         String sqlQuery = "SELECT EXISTS (SELECT 1 FROM films WHERE film_id = ?)";
         return Boolean.TRUE.equals(jdbcTemplate.queryForObject(sqlQuery, Boolean.class, film.getId()));
@@ -243,5 +255,11 @@ public class FilmDbStorage implements Storages<Film> {
     public boolean checkIsFilmHasLikeFromUser(int filmId, int userId) {
         String sqlQuery = "SELECT EXISTS (SELECT 1 FROM films_likes WHERE film_id = ? AND user_id = ?)";
         return Boolean.TRUE.equals(jdbcTemplate.queryForObject(sqlQuery, Boolean.class, filmId, userId));
+    }
+
+    public String deleteFilmById(Integer filmId) {
+        String sqlQuery = "DELETE FROM FILMS WHERE film_id = ? ";
+        jdbcTemplate.update(sqlQuery, filmId);
+        return "Фильм film_id=" + filmId + " успешно удален.";
     }
 }

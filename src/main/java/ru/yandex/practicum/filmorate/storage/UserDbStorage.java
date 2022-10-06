@@ -130,6 +130,12 @@ public class UserDbStorage implements Storages<User> {
         return Boolean.TRUE.equals(jdbcTemplate.queryForObject(sqlQuery, Boolean.class, user));
     }
 
+    public String deleteUserById(Integer userId) {
+        String sqlQuery = "DELETE FROM USERS WHERE user_id = ? ";
+        jdbcTemplate.update(sqlQuery, userId);
+        return "Пользователь user_id=" + userId + " успешно удален.";
+    }
+
     public List<Film> getRecommendation(int userId) {
         String sqlQuery = "SELECT fl1.user_id " +
                 "FROM films_likes AS fl1 " +
