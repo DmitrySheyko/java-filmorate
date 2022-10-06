@@ -141,4 +141,10 @@ public class UserDbStorage implements Storages<User> {
         String sqlQuery = "SELECT EXISTS (SELECT 1 FROM users WHERE user_id = ?)";
         return Boolean.TRUE.equals(jdbcTemplate.queryForObject(sqlQuery, Boolean.class, user));
     }
+
+    public String deleteUserById(Integer userId) {
+        String sqlQuery = "DELETE FROM USERS WHERE user_id = ? ";
+        jdbcTemplate.update(sqlQuery, userId);
+        return "Пользователь user_id=" + userId + " успешно удален.";
+    }
 }

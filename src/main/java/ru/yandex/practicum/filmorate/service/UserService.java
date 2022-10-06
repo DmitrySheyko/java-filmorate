@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exceptions.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.FeedDbStorage;
@@ -85,4 +86,14 @@ public class UserService implements Services<User> {
                 LocalTime.of(0, 0), ZoneId.of("Europe/Moscow")));
     }
 
+    public String deleteUserById (Integer userId){
+        if (! userStorage.checkIsObjectInStorage(userId)){
+            String message = "Пользователь user_id=" + userId+" не найден.";
+            log.warn(message);
+            throw new ObjectNotFoundException(message);
+        }
+        String message = userStorage.deleteUserById(userId);
+        log.info(message);
+        return message;
+    }
 }

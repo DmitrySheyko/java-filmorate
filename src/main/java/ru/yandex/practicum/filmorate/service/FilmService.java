@@ -147,4 +147,15 @@ public class FilmService implements Services<Film> {
         return Instant.from(ZonedDateTime.of(LocalDate.parse(time, dateTimeFormatter),
                 LocalTime.of(0, 0), ZoneId.of("Europe/Moscow")));
     }
+
+    public String deleteFilmById (Integer filmId){
+        if (! filmDbStorage.checkIsObjectInStorage(filmId)){
+            String message = "Фильм film_id=" + filmId+" не найден.";
+            log.warn(message);
+            throw new ObjectNotFoundException(message);
+        }
+        String message = filmDbStorage.deleteFilmById(filmId);
+        log.info(message);
+        return message;
+    }
 }

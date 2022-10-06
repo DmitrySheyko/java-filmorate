@@ -77,6 +77,11 @@ public class FilmController implements Controllers<Film> {
         return filmService.searchFilmByNameOrDirector(query, by);
     }
 
+    @DeleteMapping("/{id}")
+    public String deleteUserById(@PathVariable("id") int filmId){
+        return filmService.deleteFilmById(filmId);
+    }
+
     @GetMapping("/common")
     public List<Film> getCommonFilms(@RequestParam int userId, @RequestParam int friendId){
         return filmService.getCommonFilms(userId, friendId);

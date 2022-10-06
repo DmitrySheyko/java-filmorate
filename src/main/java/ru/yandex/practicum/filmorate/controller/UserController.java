@@ -76,4 +76,9 @@ public class UserController implements Controllers<User> {
     public List<Feed> getFeedsByUserId(@PathVariable("id") int userId) {
         return feedService.getByUserId(userId);
     }
+
+    @DeleteMapping("/{id}")
+    public String deleteUserById(@PathVariable("id") int userId){
+        return userService.deleteUserById(userId);
+    }
 }
