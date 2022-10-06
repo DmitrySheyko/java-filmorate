@@ -108,8 +108,10 @@ public class FilmService implements Services<Film> {
             throw new ObjectNotFoundException(message);
         }
         if (filmDbStorage.checkIsFilmHasLikeFromUser(filmId, userId)) {
-            String message = "Пользователь user_id=" + userId + " уже поставил лайк фильму film_id=" + filmId + ".";
-            log.error(message);
+            String message = "Пользователь user_id=" + userId + " успешно поставил лайк фильму film_id=" + filmId + ".";
+            log.info(message);
+            feedDbStorage.add(filmId, FeedService.eventTypeLike, FeedService.operationAdd, userId);
+            log.info("Лента событий пользователя user_id=" + userId + " была обновлена.");
             return message;
         }
         String message = filmDbStorage.addLike(filmId, userId);
