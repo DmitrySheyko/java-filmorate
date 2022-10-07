@@ -28,6 +28,7 @@ target/
 *.iws
 *.iml
 *.ipr
+*.md
 
 ### NetBeans ###
 /nbproject/private/
@@ -41,3 +42,4 @@ build/
 
 ### VS Code ###
 .vscode/
+/Диаграмма Ганта.ods
