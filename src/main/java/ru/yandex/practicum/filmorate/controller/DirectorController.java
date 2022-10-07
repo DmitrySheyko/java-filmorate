@@ -13,34 +13,34 @@ import java.util.List;
 @AllArgsConstructor
 public class DirectorController implements Controllers<Director> {
 
-    private final DirectorService services;
+    private final DirectorService service;
 
     @Override
     @GetMapping
     public List<Director> getAll() {
-        return services.getAll();
+        return service.getAll();
     }
 
     @Override
     @GetMapping("{id}")
     public Director getById(@PathVariable("id") int directorId) {
-        return services.getById(directorId);
+        return service.getById(directorId);
     }
 
     @Override
     @PostMapping
     public Director add(@Valid @RequestBody Director newDirector) {
-        return services.add(newDirector);
+        return service.add(newDirector);
     }
 
     @Override
     @PutMapping
     public Director update(@Valid @RequestBody Director updatedDirector) {
-        return services.update(updatedDirector);
+        return service.update(updatedDirector);
     }
 
     @DeleteMapping("{id}")
     public void deleteDirector(@PathVariable("id") int directorId) {
-        services.deleteDirector(directorId);
+        service.deleteDirector(directorId);
     }
 }

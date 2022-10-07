@@ -11,29 +11,29 @@ import java.util.List;
 @RequestMapping("/genres")
 @AllArgsConstructor
 public class GenreController implements Controllers<Genre> {
-    private final Services<Genre> services;
+    private final Services<Genre> service;
 
     @Override
     @GetMapping
     public List<Genre> getAll() {
-        return services.getAll();
+        return service.getAll();
     }
 
     @Override
     @GetMapping("{id}")
     public Genre getById(@PathVariable("id") int genreId) {
-        return services.getById(genreId);
+        return service.getById(genreId);
     }
 
     @Override
     @PostMapping
     public Genre add(@RequestBody Genre newGenre) {
-        return services.add(newGenre);
+        return service.add(newGenre);
     }
 
     @Override
     @PutMapping
     public Genre update(@RequestBody Genre genreForUpdate) {
-        return services.update(genreForUpdate);
+        return service.update(genreForUpdate);
     }
 }

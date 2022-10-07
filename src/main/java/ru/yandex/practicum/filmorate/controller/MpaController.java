@@ -11,29 +11,29 @@ import java.util.List;
 @RequestMapping("/mpa")
 @AllArgsConstructor
 public class MpaController implements Controllers<Mpa> {
-    private final Services<Mpa> services;
+    private final Services<Mpa> service;
 
     @Override
     @GetMapping
     public List<Mpa> getAll() {
-        return services.getAll();
+        return service.getAll();
     }
 
     @Override
     @GetMapping("{id}")
     public Mpa getById(@PathVariable("id") int ratingId) {
-        return services.getById(ratingId);
+        return service.getById(ratingId);
     }
 
     @Override
     @PostMapping
     public Mpa add(@RequestBody Mpa newRating) {
-        return services.add(newRating);
+        return service.add(newRating);
     }
 
     @Override
     @PutMapping
     public Mpa update(@RequestBody Mpa mpaForUpdate) {
-        return services.update(mpaForUpdate);
+        return service.update(mpaForUpdate);
     }
 }
