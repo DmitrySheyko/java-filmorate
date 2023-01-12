@@ -5,6 +5,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.server.ResponseStatusException;
 
 import javax.validation.ConstraintViolationException;
 
@@ -32,6 +33,12 @@ public class ErrorHandler {
     @ResponseStatus(HttpStatus.NOT_FOUND)
     @ExceptionHandler(ObjectNotFoundException.class)
     public String handlerOfObjectNotFoundException(final ObjectNotFoundException e) {
+        return String.format("Ошибка. %s", e.getMessage());
+    }
+
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ExceptionHandler(ResponseStatusException.class)
+    public String handlerOfResponseStatusException(final ResponseStatusException e) {
         return String.format("Ошибка. %s", e.getMessage());
     }
 

@@ -1,12 +1,11 @@
 package ru.yandex.practicum.filmorate.storage;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
-import org.springframework.jdbc.core.JdbcTemplate;
-import ru.yandex.practicum.filmorate.exceptions.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.model.Mpa;
 
 import java.sql.PreparedStatement;
@@ -14,15 +13,10 @@ import java.util.List;
 import java.util.Objects;
 
 @Repository
+@AllArgsConstructor
 public class MpaDbStorage implements Storages<Mpa> {
     private final JdbcTemplate jdbcTemplate;
     private final RowMapper<Mpa> mpaMapper;
-
-    @Autowired
-    public MpaDbStorage(JdbcTemplate jdbcTemplate, RowMapper<Mpa> mpaMapper) {
-        this.jdbcTemplate = jdbcTemplate;
-        this.mpaMapper = mpaMapper;
-    }
 
     @Override
     public List<Mpa> getAll() {
@@ -35,15 +29,11 @@ public class MpaDbStorage implements Storages<Mpa> {
 
     @Override
     public Mpa getById(int ratingId) {
-        if (checkIsObjectInStorage(ratingId)) {
             String sqlQuery = "SELECT rating_id, " +
                     "rating_name " +
                     "FROM ratings " +
                     "WHERE rating_id = ?";
             return jdbcTemplate.queryForObject(sqlQuery, mpaMapper, ratingId);
-        } else {
-            throw new ObjectNotFoundException(String.format("Рейтинг MPA id=%s не найден", ratingId));
-        }
     }
 
     @Override
@@ -60,11 +50,11 @@ public class MpaDbStorage implements Storages<Mpa> {
     }
 
     @Override
-    public Mpa update(Mpa updatedMpa) {
+    public Mpa update(Mpa mpaForUpdate) {
         String sqlQuery = "UPDATE ratings SET rating_name = ? " +
                 "WHERE rating_id = ? ";
-        jdbcTemplate.update(sqlQuery, updatedMpa.getName(), updatedMpa.getId());
-        return updatedMpa;
+        jdbcTemplate.update(sqlQuery, mpaForUpdate.getName(), mpaForUpdate.getId());
+        return mpaForUpdate;
     }
 
     public boolean checkIsObjectInStorage(Mpa mpa) {
