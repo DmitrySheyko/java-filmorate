@@ -13,9 +13,16 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.*;
 
+/**
+ * Class of repository for entity {@link User}.
+ * Implements interface {@link Storages}.
+ *
+ * @author DmitrySheyko
+ */
 @Repository
 @AllArgsConstructor
 public class UserDbStorage implements Storages<User> {
+
     private final JdbcTemplate jdbcTemplate;
     private final RowMapper<User> userMapper;
     private final RowMapper<Film> filmMapper;
@@ -156,4 +163,5 @@ public class UserDbStorage implements Storages<User> {
             return Collections.emptyList();
         }
     }
+
 }

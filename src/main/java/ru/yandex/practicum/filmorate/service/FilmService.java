@@ -17,6 +17,12 @@ import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * Class of service for entity {@link Film}.
+ * Implements interface {@link Services}.
+ *
+ * @author DmitrySheyko
+ */
 @Slf4j
 @Service
 public class FilmService implements Services<Film> {
@@ -233,4 +239,5 @@ public class FilmService implements Services<Film> {
         log.info(message);
         return message;
     }
+
 }

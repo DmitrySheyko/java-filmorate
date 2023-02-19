@@ -14,6 +14,12 @@ import java.sql.SQLException;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * Class of service for entity {@link Review}.
+ * Implements interface {@link Services}.
+ *
+ * @author DmitrySheyko
+ */
 @AllArgsConstructor
 @Slf4j
 @Service
@@ -181,4 +187,5 @@ public class ReviewService implements Services<Review> {
         log.info("Лента событий пользователя user_id=" + review.getUserId() + " была обновлена.");
         return message;
     }
+
 }

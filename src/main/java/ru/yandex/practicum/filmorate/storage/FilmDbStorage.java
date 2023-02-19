@@ -8,17 +8,21 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.CollectionUtils;
 import ru.yandex.practicum.filmorate.exceptions.ObjectNotFoundException;
-import ru.yandex.practicum.filmorate.model.Director;
-import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.Genre;
-import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.model.*;
 
 import java.sql.PreparedStatement;
 import java.util.*;
 
+/**
+ * Class of repository for entity {@link Film}.
+ * Implements interface {@link Storages}.
+ *
+ * @author DmitrySheyko
+ */
 @Repository("filmDbStorage")
 @AllArgsConstructor
 public class FilmDbStorage implements Storages<Film> {
+
     private final JdbcTemplate jdbcTemplate;
     private final RowMapper<Film> filmMapper;
     private final DirectorDbStorage directorDbStorage;
@@ -260,4 +264,5 @@ public class FilmDbStorage implements Storages<Film> {
         jdbcTemplate.update(sqlQuery, filmId);
         return "Фильм film_id=" + filmId + " успешно удален.";
     }
+
 }

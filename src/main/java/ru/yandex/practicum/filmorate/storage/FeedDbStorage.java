@@ -14,6 +14,12 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * Class of repository for entity {@link Feed}.
+ * Implements interface {@link Storages}.
+ *
+ * @author DmitrySheyko
+ */
 @Repository
 @AllArgsConstructor
 @Slf4j

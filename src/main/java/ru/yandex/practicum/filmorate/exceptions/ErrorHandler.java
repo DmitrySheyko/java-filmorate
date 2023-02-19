@@ -9,6 +9,11 @@ import org.springframework.web.server.ResponseStatusException;
 
 import javax.validation.ConstraintViolationException;
 
+/**
+ * Class of exceptions handlers.
+ *
+ * @author DmitrySheyko
+ */
 @RestControllerAdvice
 public class ErrorHandler {
 
@@ -47,4 +52,5 @@ public class ErrorHandler {
     public String handlerExceptions(final Exception e) {
         return String.format("Ошибка. %s", e.getMessage());
     }
+
 }

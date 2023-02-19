@@ -5,6 +5,11 @@ import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
 
+/**
+ * Class of entity {@link Review}.
+ *
+ * @author DmitrySheyko
+ */
 @Data
 @Builder
 public class Review {
@@ -17,4 +22,5 @@ public class Review {
     private Integer filmId;
     @Builder.Default
     private Integer useful = 0;
+
 }

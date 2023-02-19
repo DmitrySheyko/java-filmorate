@@ -7,6 +7,11 @@ import ru.yandex.practicum.filmorate.model.User;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+/**
+ * Class of mapper for entity {@link User}.
+ *
+ * @author DmitrySheyko
+ */
 @Component
 public class UserMapper implements RowMapper<User> {
 
@@ -20,4 +25,5 @@ public class UserMapper implements RowMapper<User> {
                 .birthday(rs.getString("birth_day"))
                 .build();
     }
+
 }

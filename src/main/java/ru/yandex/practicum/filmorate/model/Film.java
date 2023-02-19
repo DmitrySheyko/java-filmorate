@@ -6,9 +6,15 @@ import lombok.Data;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * Class of entity {@link Film}.
+ *
+ * @author DmitrySheyko
+ */
 @Data
 @Builder
 public class Film {
+
     private int id;
     private String name;
     private String description;
@@ -18,4 +24,5 @@ public class Film {
     private List<Genre> genres;
     private Set<Director> directors;
     private int rate;
+
 }

@@ -12,6 +12,12 @@ import java.sql.PreparedStatement;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * Class of repository for entity {@link Review}.
+ * Implements interface {@link Storages}.
+ *
+ * @author DmitrySheyko
+ */
 @Repository
 @AllArgsConstructor
 public class ReviewDbStorage implements Storages<Review> {
@@ -150,4 +156,5 @@ public class ReviewDbStorage implements Storages<Review> {
         String sqlQuery = "SELECT EXISTS (SELECT 1 FROM users WHERE user_id = ?)";
         return Boolean.TRUE.equals(jdbcTemplate.queryForObject(sqlQuery, Boolean.class, userId));
     }
+
 }

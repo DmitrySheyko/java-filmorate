@@ -11,6 +11,11 @@ import ru.yandex.practicum.filmorate.storage.MpaDbStorage;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+/**
+ * Class of mapper for entity {@link Film}.
+ *
+ * @author DmitrySheyko
+ */
 @Component
 @AllArgsConstructor
 public class FilmMapper implements RowMapper<Film> {

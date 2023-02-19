@@ -16,9 +16,16 @@ import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * Class of service for entity {@link User}.
+ * Implements interface {@link Services}.
+ *
+ * @author DmitrySheyko
+ */
 @Slf4j
 @Service
 public class UserService implements Services<User> {
+
     private final UserDbStorage userStorage;
     private final FeedDbStorage feedDbStorage;
     private final DateTimeFormatter dateTimeFormatter;
@@ -209,5 +216,6 @@ public class UserService implements Services<User> {
             return Collections.emptyList();
         }
     }
+
 }
 

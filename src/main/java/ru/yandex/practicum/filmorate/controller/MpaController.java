@@ -7,10 +7,16 @@ import ru.yandex.practicum.filmorate.service.Services;
 
 import java.util.List;
 
+/**
+ * Class of controller for entity {@link Mpa}.
+ *
+ * @author DmitrySheyko
+ */
 @RestController
 @RequestMapping("/mpa")
 @AllArgsConstructor
 public class MpaController implements Controllers<Mpa> {
+
     private final Services<Mpa> service;
 
     @Override
@@ -36,4 +42,5 @@ public class MpaController implements Controllers<Mpa> {
     public Mpa update(@RequestBody Mpa mpaForUpdate) {
         return service.update(mpaForUpdate);
     }
+
 }

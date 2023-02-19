@@ -10,6 +10,11 @@ import javax.validation.Valid;
 import java.sql.SQLException;
 import java.util.List;
 
+/**
+ * Class of controller for entity {@link Review}.
+ *
+ * @author DmitrySheyko
+ */
 @RestController
 @RequestMapping("/reviews")
 @AllArgsConstructor
@@ -65,4 +70,5 @@ public class ReviewController {
     public String removeDislikeLikeById(@PathVariable Integer id, @PathVariable Integer userId) {
         return reviewService.removeDislikeById(id, userId);
     }
+
 }

@@ -7,10 +7,16 @@ import ru.yandex.practicum.filmorate.service.Services;
 
 import java.util.List;
 
+/**
+ * Class of controller for entity {@link Genre}.
+ *
+ * @author DmitrySheyko
+ */
 @RestController
 @RequestMapping("/genres")
 @AllArgsConstructor
 public class GenreController implements Controllers<Genre> {
+
     private final Services<Genre> service;
 
     @Override
@@ -36,4 +42,5 @@ public class GenreController implements Controllers<Genre> {
     public Genre update(@RequestBody Genre genreForUpdate) {
         return service.update(genreForUpdate);
     }
+
 }

@@ -7,8 +7,14 @@ import ru.yandex.practicum.filmorate.model.Director;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+/**
+ * Class of mapper for entity {@link Director}.
+ *
+ * @author DmitrySheyko
+ */
 @Component
 public class DirectorMapper implements RowMapper<Director> {
+
     @Override
     public Director mapRow(ResultSet rs, int rowNum) throws SQLException {
         return Director
@@ -17,4 +23,5 @@ public class DirectorMapper implements RowMapper<Director> {
                 .name(rs.getString("director_name"))
                 .build();
     }
+
 }

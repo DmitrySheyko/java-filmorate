@@ -14,9 +14,16 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
+/**
+ * Class of repository for entity {@link Director}.
+ * Implements interface {@link Storages}.
+ *
+ * @author DmitrySheyko
+ */
 @Repository
 @AllArgsConstructor
 public class DirectorDbStorage implements Storages<Director> {
+
     private final JdbcTemplate jdbcTemplate;
     private final RowMapper<Director> directorMapper;
 

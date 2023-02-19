@@ -7,6 +7,11 @@ import ru.yandex.practicum.filmorate.model.Review;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+/**
+ * Class of mapper for entity {@link Review}.
+ *
+ * @author DmitrySheyko
+ */
 @Component
 public class ReviewMapper implements RowMapper<Review> {
 
@@ -21,4 +26,5 @@ public class ReviewMapper implements RowMapper<Review> {
                 .useful(rs.getInt("useful"))
                 .build();
     }
+
 }

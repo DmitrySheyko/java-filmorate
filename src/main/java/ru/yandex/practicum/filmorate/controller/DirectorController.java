@@ -8,6 +8,11 @@ import ru.yandex.practicum.filmorate.service.DirectorService;
 import javax.validation.Valid;
 import java.util.List;
 
+/**
+ * Class of controller for entity {@link Director}.
+ *
+ * @author DmitrySheyko
+ */
 @RestController
 @RequestMapping("/directors")
 @AllArgsConstructor
@@ -43,4 +48,5 @@ public class DirectorController implements Controllers<Director> {
     public void deleteDirector(@PathVariable("id") int directorId) {
         service.deleteDirector(directorId);
     }
+
 }

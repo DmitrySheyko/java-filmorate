@@ -12,6 +12,11 @@ import ru.yandex.practicum.filmorate.storage.UserDbStorage;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * Class of service for entity {@link Feed}.
+ *
+ * @author DmitrySheyko
+ */
 @AllArgsConstructor
 @Slf4j
 @Service
@@ -42,4 +47,5 @@ public class FeedService {
             return Collections.emptyList();
         }
     }
+
 }

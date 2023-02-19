@@ -7,8 +7,14 @@ import ru.yandex.practicum.filmorate.model.Genre;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+/**
+ * Class of mapper for entity {@link Genre}.
+ *
+ * @author DmitrySheyko
+ */
 @Component
 public class GenreMapper implements RowMapper<Genre> {
+
     @Override
     public Genre mapRow(ResultSet rs, int rowNum) throws SQLException {
         return Genre.builder()
@@ -16,4 +22,5 @@ public class GenreMapper implements RowMapper<Genre> {
                 .name(rs.getString("genre_name"))
                 .build();
     }
+
 }

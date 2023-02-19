@@ -12,9 +12,16 @@ import java.sql.PreparedStatement;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * Class of repository for entity {@link Mpa}.
+ * Implements interface {@link Storages}.
+ *
+ * @author DmitrySheyko
+ */
 @Repository
 @AllArgsConstructor
 public class MpaDbStorage implements Storages<Mpa> {
+
     private final JdbcTemplate jdbcTemplate;
     private final RowMapper<Mpa> mpaMapper;
 
@@ -66,4 +73,5 @@ public class MpaDbStorage implements Storages<Mpa> {
         String sqlQuery = "SELECT EXISTS (SELECT 1 from ratings WHERE rating_id = ?)";
         return Boolean.TRUE.equals(jdbcTemplate.queryForObject(sqlQuery, Boolean.class, mpaId));
     }
+
 }

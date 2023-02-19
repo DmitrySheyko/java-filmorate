@@ -13,9 +13,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * Class of repository for entity {@link Genre}.
+ * Implements interface {@link Storages}.
+ *
+ * @author DmitrySheyko
+ */
 @Repository
 @AllArgsConstructor
 public class GenreDbStorage implements Storages<Genre> {
+
     private final JdbcTemplate jdbcTemplate;
     private final RowMapper<Genre> genreMapper;
 
@@ -75,4 +82,5 @@ public class GenreDbStorage implements Storages<Genre> {
         String sqlQuery = "SELECT EXISTS (SELECT 1 FROM genres WHERE genre_id = ?)";
         return Boolean.TRUE.equals(jdbcTemplate.queryForObject(sqlQuery, Boolean.class, genre.getId()));
     }
+
 }

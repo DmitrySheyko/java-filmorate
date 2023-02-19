@@ -10,6 +10,11 @@ import ru.yandex.practicum.filmorate.service.UserService;
 
 import java.util.List;
 
+/**
+ * Class of controller for entity {@link User}.
+ *
+ * @author DmitrySheyko
+ */
 @RestController
 @RequestMapping("/users")
 @AllArgsConstructor
@@ -69,7 +74,7 @@ public class UserController implements Controllers<User> {
     }
 
     @DeleteMapping("/{id}")
-    public String deleteUserById(@PathVariable("id") int userId){
+    public String deleteUserById(@PathVariable("id") int userId) {
         return userService.deleteUserById(userId);
     }
 
@@ -78,4 +83,5 @@ public class UserController implements Controllers<User> {
     public List<Film> getRecommendation(@PathVariable("id") int userId) {
         return userService.getRecommendation(userId);
     }
+
 }

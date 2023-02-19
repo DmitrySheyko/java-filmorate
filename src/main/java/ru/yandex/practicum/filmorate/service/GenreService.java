@@ -5,13 +5,18 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exceptions.ObjectNotFoundException;
-import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.storage.Storages;
 
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * Class of service for entity {@link Genre}.
+ * Implements interface {@link Services}.
+ *
+ * @author DmitrySheyko
+ */
 @Slf4j
 @Service
 @AllArgsConstructor

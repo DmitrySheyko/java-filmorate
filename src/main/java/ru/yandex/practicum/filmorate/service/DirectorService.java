@@ -12,10 +12,17 @@ import ru.yandex.practicum.filmorate.storage.DirectorDbStorage;
 
 import java.util.List;
 
+/**
+ * Class of service for entity {@link Director}.
+ * Implements interface {@link Services}.
+ *
+ * @author DmitrySheyko
+ */
 @Slf4j
 @Service
 @AllArgsConstructor
 public class DirectorService implements Services<Director> {
+
     private final DirectorDbStorage storages;
 
     @Override
@@ -78,4 +85,5 @@ public class DirectorService implements Services<Director> {
                     directorId));
         }
     }
+
 }

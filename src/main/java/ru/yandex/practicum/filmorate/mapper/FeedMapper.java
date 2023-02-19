@@ -8,6 +8,11 @@ import ru.yandex.practicum.filmorate.model.Feed;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+/**
+ * Class of mapper for entity {@link Feed}.
+ *
+ * @author DmitrySheyko
+ */
 @Component
 @AllArgsConstructor
 public class FeedMapper implements RowMapper<Feed> {
@@ -23,4 +28,5 @@ public class FeedMapper implements RowMapper<Feed> {
                 .timestamp(rs.getLong("timestamp"))
                 .build();
     }
+
 }

@@ -7,8 +7,14 @@ import ru.yandex.practicum.filmorate.model.Mpa;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+/**
+ * Class of mapper for entity {@link Mpa}.
+ *
+ * @author DmitrySheyko
+ */
 @Component
 public class MpaMapper implements RowMapper<Mpa> {
+
     @Override
     public Mpa mapRow(ResultSet rs, int rowNum) throws SQLException {
         return Mpa.builder()
@@ -16,4 +22,5 @@ public class MpaMapper implements RowMapper<Mpa> {
                 .name(rs.getString("rating_name"))
                 .build();
     }
+
 }

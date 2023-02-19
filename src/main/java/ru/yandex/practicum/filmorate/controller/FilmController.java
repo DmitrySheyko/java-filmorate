@@ -9,11 +9,17 @@ import ru.yandex.practicum.filmorate.service.FilmService;
 import javax.validation.constraints.Positive;
 import java.util.List;
 
+/**
+ * Class of controller for entity {@link Film}.
+ *
+ * @author DmitrySheyko
+ */
 @Slf4j
 @RestController
 @RequestMapping("/films")
 @AllArgsConstructor
 public class FilmController implements Controllers<Film> {
+
     private final FilmService filmService;
 
     @Override
@@ -80,5 +86,6 @@ public class FilmController implements Controllers<Film> {
     public List<Film> getCommonFilms(@RequestParam int userId, @RequestParam int friendId) {
         return filmService.getCommonFilms(userId, friendId);
     }
+
 }
 
