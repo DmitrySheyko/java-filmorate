@@ -10,7 +10,7 @@
 
 ### Описание:
 - Java 11;
-- Spring boot,Spring Boot Web,JDBC;
+- Spring boot, Spring Boot Web,JDBC template;
 - H2 или PostgresSQL.
 
 ### Запуск:
