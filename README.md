@@ -10,5 +10,8 @@
 
 ### Описание:
 - Java 11;
-- Spring boot;
+- Spring boot,Spring Boot Web,JDBC;
 - H2 или PostgresSQL.
+
+### Запуск:
+Для запуска необходимо запустить метод Main класса FilmorateApplication.java
